@@ -18,3 +18,5 @@ Imports:
     sigshared (>= 0.0.0.9000)
 Remotes: 
     selkamand/sigshared
+URL: https://github.com/selkamand/sigstats
+BugReports: https://github.com/selkamand/sigstats/issues
