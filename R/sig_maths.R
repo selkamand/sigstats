@@ -34,6 +34,7 @@ sig_combine <- function(signatures, model){
   model_signatures <- names(model)
   assertions::assert_subset(model_signatures, names(signatures))
   assertions::assert(sum(model) <= 1, msg = 'Contributions of all signatures in model should add up to <= 1, not [{sum(model)}]')
+  assertions::assert_no_duplicates(model_signatures)
 
   # Grab relevant signatures, modify fraction to reflect the signatures total contribution, and add signature name
   ls_signatures <- lapply(model_signatures, \(signame){
