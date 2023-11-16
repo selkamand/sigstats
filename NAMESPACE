@@ -3,3 +3,4 @@
 export(sig_combine)
 export(sig_combine_collapse_to_single_signature)
 export(sig_cosine_similarity)
+export(sig_reconstruct)

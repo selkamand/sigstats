@@ -31,7 +31,6 @@ model <- c(SBS1 = 0.4, SBS2 = 0.6)
 
 # Add selected signatures to the combined model
 combined_signatures <- sig_combine(signatures, model)
-print(combined_signatures)
 
 # Flatten the combined_signatures dataframe that keeps separate signatures
 signature <- sig_combine_collapse_to_single_signature(combined_signatures)
