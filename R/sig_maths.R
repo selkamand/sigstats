@@ -139,7 +139,7 @@ sim_cosine <- function(x, y){
 #'
 #' @examples
 #' library(sigstash)
-#' library(sigvis)
+#'
 #' # Load a signature collection
 #' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
 #'
@@ -157,7 +157,7 @@ sim_cosine <- function(x, y){
 #' reconstuction <- sig_reconstruct(signature, n=200)
 #'
 #' # Visualise Result
-#' sig_visualise(reconstuction, class = "decomposition")
+#' # sig_visualise(reconstuction, class = "decomposition")
 #'
 sig_reconstruct <- function(signature, n){
 
@@ -165,6 +165,8 @@ sig_reconstruct <- function(signature, n){
   assertions::assert_number(n)
   sigshared::assert_signature(signature)
 
+  # Convert signature to decomposition
   signature[['count']] <- signature[['fraction']] * n
+
   return(signature)
 }
