@@ -15,7 +15,9 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports: 
     assertions,
-    sigshared (>= 0.0.0.9000)
+    lsa,
+    sigshared (>= 0.0.0.9000),
+    stats
 Remotes: 
     selkamand/sigshared
 URL: https://github.com/selkamand/sigstats

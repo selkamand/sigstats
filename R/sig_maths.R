@@ -54,3 +54,76 @@ sig_combine <- function(signatures, model){
   # Perform the addition
   return(df_signatures_combined)
 }
+
+#' Collapse to single signatures
+#'
+#' Convert the output of [sig_combine()] into a simple sigverse signature object.
+#' This is useful when you want to run maths on a signature derived from a model
+#' Note for visualisation of signature combination models,
+#' we suggest directly using the output of [sig_combine()] in [sigvis::sig_visualise()] so that
+#' when [sigvis::sig_make_interactive()] is run the original signature contributions are preserved
+#'
+#' @param signature_combination a dataframe produced by [sig_combine()]
+#' which represents the combination of multiple signatures with known (exact) proportions - where each individual signature is kept distinct to make it easy to plot as a stackedbar
+#'
+#' @return a data.frame in sigverse signature format
+#' @export
+#'
+#' @examples
+#' library(sigstash)
+#'
+#' # Load a signature collection
+#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#'
+#' # Create a model that represents a mix of SBS1 (40%) and SBS2 (60%)
+#' model <- c(SBS1 = 0.4, SBS2 = 0.6)
+#'
+#' # Add selected signatures to the combined model
+#' combined_signatures <- sig_combine(signatures, model)
+#' print(combined_signatures)
+#'
+#' # Flatten the combined_signatures dataframe that keeps separate signatures
+#' signature <- sig_combine_collapse_to_single_signature(combined_signatures)
+#'
+sig_combine_collapse_to_single_signature <- function(signature_combination){
+  stats::aggregate(data = signature_combination, fraction ~ type + channel, FUN = \(frac){ sum(frac)})
+}
+
+
+#' Calculate Cosine Matrix Between
+#'
+#' Computes cosine similarity between each pair of signatures in a sigverse signature collection
+#'
+#' @param signature1,signature2 sigverse signatures
+#'
+#' @return a number between 0 and 1 representing cosine similarity
+#'
+#' @export
+#'
+#' @examples
+#' library(sigstash)
+#'
+#' # Load a signature collection
+#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#'
+#' # Compute cosine similarity between two signatures
+#' sig_cosine_similarity(signatures[["SBS1"]], signatures[["SBS2"]])
+#'
+sig_cosine_similarity <- function(signature1,signature2){
+
+  sigshared::assert_signature(signature1)
+  sigshared::assert_signature(signature2)
+
+  # Ensure signatures are sorted the same way 'type channel' match 1:1 (including order)
+  sig1_type_channel_id = paste(signature1[['type']], signature1[['channel']])
+  sig1_type_channel_id = paste(signature2[['type']], signature2[['channel']])
+  assertions::assert_equal(sig1_type_channel_id, sig1_type_channel_id)
+
+  sim_cosine(signature1[['fraction']], signature2[['fraction']])
+
+
+}
+
+sim_cosine <- function(x, y){
+  as.numeric(lsa::cosine(x, y))
+}
