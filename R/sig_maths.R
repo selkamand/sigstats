@@ -93,7 +93,7 @@ sig_combine_collapse_to_single_signature <- function(signature_combination){
 #'
 #' Computes cosine similarity between each pair of signatures in a sigverse signature collection
 #'
-#' @param signature1,signature2 sigverse signatures
+#' @param signature1,signature2 sigverse signature data.frames
 #'
 #' @return a number between 0 and 1 representing cosine similarity
 #'
@@ -115,8 +115,8 @@ sig_cosine_similarity <- function(signature1,signature2){
 
   # Ensure signatures are sorted the same way 'type channel' match 1:1 (including order)
   sig1_type_channel_id = paste(signature1[['type']], signature1[['channel']])
-  sig1_type_channel_id = paste(signature2[['type']], signature2[['channel']])
-  assertions::assert_equal(sig1_type_channel_id, sig1_type_channel_id)
+  sig2_type_channel_id = paste(signature2[['type']], signature2[['channel']])
+  assertions::assert_equal(sig1_type_channel_id, sig2_type_channel_id, msg = 'Can NOT calculate cosine similarity for two signatures/decompositions which have different types or channels.')
 
   sim_cosine(signature1[['fraction']], signature2[['fraction']])
 
@@ -169,4 +169,39 @@ sig_reconstruct <- function(signature, n){
   signature[['count']] <- signature[['fraction']] * n
 
   return(signature)
+}
+
+
+#' Subtract Signature
+#'
+#' Subtracts signature2 from signature1 (factions) and returns result.
+#' Works for only signatures. To translate to a decomposition see [sig_reconstruct()]
+#'
+#' @param signature1,signature2 sigverse signature data.frames
+#'
+#' @return a data.frame representing a sigverse signature
+#' @export
+#'
+#' @examples
+#' library(sigstash)
+#'
+#' # Load a signature collection
+#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#'
+#' # Subtract signatures
+#' sig_subtract(signatures[['SBS3']], signatures[['SBS4']])
+#'
+sig_subtract <- function(signature1, signature2){
+  sigshared::assert_signature(signature1)
+  sigshared::assert_signature(signature2)
+
+  # Ensure signatures are sorted the same way 'type channel' match 1:1 (including order)
+  sig1_type_channel_id = paste(signature1[['type']], signature1[['channel']])
+  sig1_type_channel_id = paste(signature2[['type']], signature2[['channel']])
+  assertions::assert_equal(sig1_type_channel_id, sig1_type_channel_id)
+
+  sig_result <- signature1
+  sig_result[['fraction']] <- signature1[['fraction']] - signature2[['fraction']]
+
+  return(sig_result)
 }

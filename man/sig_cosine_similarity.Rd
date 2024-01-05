@@ -7,7 +7,7 @@
 sig_cosine_similarity(signature1, signature2)
 }
 \arguments{
-\item{signature1, signature2}{sigverse signatures}
+\item{signature1, signature2}{sigverse signature data.frames}
 }
 \value{
 a number between 0 and 1 representing cosine similarity
