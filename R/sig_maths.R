@@ -89,12 +89,14 @@ sig_combine_collapse_to_single_signature <- function(signature_combination){
 }
 
 
-#' Calculate Cosine Matrix Between
+#' Calculate Cosine Matrix Between Two Signatures
 #'
 #' Computes cosine similarity between each pair of signatures in a sigverse signature collection
 #'
 #' @param signature1,signature2 sigverse signature data.frames
-#'
+#' @param assume_sensible_input to drastically speed up the similarity function,
+#' we an simply assume that both inputs are valid signature objects, and the channels are sorted.
+#' If speed is essential, perform these checks upstream (flag)
 #' @return a number between 0 and 1 representing cosine similarity
 #'
 #' @export
@@ -108,20 +110,21 @@ sig_combine_collapse_to_single_signature <- function(signature_combination){
 #' # Compute cosine similarity between two signatures
 #' sig_cosine_similarity(signatures[["SBS1"]], signatures[["SBS2"]])
 #'
-sig_cosine_similarity <- function(signature1,signature2){
+sig_cosine_similarity <- function(signature1,signature2, assume_sensible_input = FALSE){
 
-  sigshared::assert_signature(signature1)
-  sigshared::assert_signature(signature2)
+  if(!assume_sensible_input){
+    sigshared::assert_signature(signature1)
+    sigshared::assert_signature(signature2)
 
-  # Ensure signatures are sorted the same way 'type channel' match 1:1 (including order)
-  sig1_type_channel_id = paste(signature1[['type']], signature1[['channel']])
-  sig2_type_channel_id = paste(signature2[['type']], signature2[['channel']])
-  assertions::assert_equal(sig1_type_channel_id, sig2_type_channel_id, msg = 'Can NOT calculate cosine similarity for two signatures/decompositions which have different types or channels.')
+    # Ensure signatures are sorted the same way 'type channel' match 1:1 (including order)
+    sig1_type_channel_id = paste(signature1[['type']], signature1[['channel']])
+    sig2_type_channel_id = paste(signature2[['type']], signature2[['channel']])
+    assertions::assert_equal(sig1_type_channel_id, sig2_type_channel_id, msg = 'Can NOT calculate cosine similarity for two signatures/decompositions which have different types or channels.')
+  }
 
   sim_cosine(signature1[['fraction']], signature2[['fraction']])
-
-
 }
+
 
 sim_cosine <- function(x, y){
   as.numeric(lsa::cosine(x, y))
