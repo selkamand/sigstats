@@ -14,7 +14,7 @@ a data.frame representing a sigverse signature
 }
 \description{
 Subtracts signature2 from signature1 (factions) and returns result.
-Works for only signatures. To translate to a decomposition see \code{\link[=sig_reconstruct]{sig_reconstruct()}}
+Works for only signatures. To translate to a catalogue see \code{\link[=sig_reconstruct]{sig_reconstruct()}}
 }
 \examples{
 library(sigstash)
