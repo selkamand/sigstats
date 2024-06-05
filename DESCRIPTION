@@ -1,10 +1,13 @@
 Package: sigstats
-Title: What the Package Does (One Line, Title Case)
+Title: Mathematical Operations and Transformations for Sigverse Signatures and Catalogues
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    person("Sam", "El-Kamand", , "selkamand@ccia.org.au", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-2270-8088"))
+Description: sigstats provides tools for performing common mathematical operations and transformations on sigverse style signatures and catalogues. 
+  This package enables users to create models of mutational signatures, combine them, and reconstruct mutation catalogues. 
+  Visualization functions are also included for easy interpretation of the results. 
+  `The package is designed to work seamlessly with other sigverse packages like sigstash and sigvis.
 License: MIT + file LICENSE
 Suggests: 
     sigstash,
