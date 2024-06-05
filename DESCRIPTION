@@ -23,5 +23,5 @@ Imports:
     stats
 Remotes: 
     selkamand/sigshared
-URL: https://github.com/selkamand/sigstats
+URL: https://github.com/selkamand/sigstats, https://selkamand.github.io/sigstats/
 BugReports: https://github.com/selkamand/sigstats/issues

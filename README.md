@@ -1,14 +1,19 @@
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # sigstats
 
 <!-- badges: start -->
 
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) [![CRAN status](https://www.r-pkg.org/badges/version/sigstats)](https://CRAN.R-project.org/package=sigstats)
-
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/sigstats)](https://CRAN.R-project.org/package=sigstats)
+[![R-CMD-check](https://github.com/selkamand/sigstats/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/selkamand/sigstats/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-**sigstats** enables common mathematical operations / transformations to be applied to **sigverse** style signatures / catalogues
+**sigstats** enables common mathematical operations / transformations to
+be applied to **sigverse** style signatures / catalogues
 
 ## Installation
 
@@ -49,11 +54,12 @@ sig_visualise(
 #> ✔ Types matched perfectly to palette [snv_type]
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%"/>
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
 ### Reconstruct a mutation catalogue from a signature model
 
-We often need to reconstruct a catalogue (or tally) from our signature model.
+We often need to reconstruct a catalogue (or tally) from our signature
+model.
 
 ``` r
 # Load a signature collection
@@ -81,4 +87,4 @@ sig_visualise(
 #> ✔ Types matched perfectly to palette [snv_type]
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%"/>
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
