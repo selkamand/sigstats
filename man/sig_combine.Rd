@@ -4,18 +4,24 @@
 \alias{sig_combine}
 \title{Add Signatures to a Combined Signature Model}
 \usage{
-sig_combine(signatures, model)
+sig_combine(signatures, model, format = c("combined", "signature"))
 }
 \arguments{
 \item{signatures}{A signature collection, typically a list of data.frames where each data.frame represents a signature with specific attributes.}
 
-\item{model}{A numeric vector representing the contribution of each signature to the combined model. The sum of the values in this vector should be less than or equal to 1.}
+\item{model}{A named numeric vector representing the contribution of each signature to the combined model.
+The names correspond to the signatures, and the values represent their contributions.
+The sum of the values in this vector should be less than or equal to 1.}
+
+\item{format}{A character string indicating the output format.
+If "combined", the function returns a 'combined_signature_model' data.frame where each row represents a contribution for a particular channel from a single signature (duplicate channels are not collapsed).
+If "signature", the function returns the data in the sigverse signature format, representing a novel signature created by combining the signatures in the collection according to the ratios described by the model.}
 }
 \value{
 A data.frame in the 'combined_signature_model' style containing the selected signatures and their modified fractions based on the model.
 }
 \description{
-This function takes a signature collection and a model as input and adds selected signatures to a combined signature model. The output is a data.frame in the 'combined_signature_model' style data.frame format from the Sigverse package.
+This function takes a signature collection and a model as input and adds selected signatures to a combined signature model. The default output is a data.frame in the 'combined_signature_model' style data.frame format from the Sigverse package.
 }
 \examples{
 library(sigstash)

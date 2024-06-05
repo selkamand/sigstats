@@ -1,9 +1,14 @@
 #' Add Signatures to a Combined Signature Model
 #'
-#' This function takes a signature collection and a model as input and adds selected signatures to a combined signature model. The output is a data.frame in the 'combined_signature_model' style data.frame format from the Sigverse package.
+#' This function takes a signature collection and a model as input and adds selected signatures to a combined signature model. The default output is a data.frame in the 'combined_signature_model' style data.frame format from the Sigverse package.
 #'
 #' @param signatures A signature collection, typically a list of data.frames where each data.frame represents a signature with specific attributes.
-#' @param model A numeric vector representing the contribution of each signature to the combined model. The sum of the values in this vector should be less than or equal to 1.
+#' @param model A named numeric vector representing the contribution of each signature to the combined model.
+#' The names correspond to the signatures, and the values represent their contributions.
+#' The sum of the values in this vector should be less than or equal to 1.
+#' @param format A character string indicating the output format.
+#' If "combined", the function returns a 'combined_signature_model' data.frame where each row represents a contribution for a particular channel from a single signature (duplicate channels are not collapsed).
+#' If "signature", the function returns the data in the sigverse signature format, representing a novel signature created by combining the signatures in the collection according to the ratios described by the model.
 #'
 #' @return A data.frame in the 'combined_signature_model' style containing the selected signatures and their modified fractions based on the model.
 #'
@@ -25,11 +30,12 @@
 #' # Visualise using sigvis
 #'
 #' @export
-sig_combine <- function(signatures, model){
+sig_combine <- function(signatures, model, format = c("combined", "signature")){
 
   # Assertions
   sigshared::assert_signature_collection(signatures)
   assertions::assert_numeric_vector(model)
+  format <- rlang::arg_match(format)
 
   model_signatures <- names(model)
   assertions::assert_subset(model_signatures, names(signatures))
@@ -51,7 +57,13 @@ sig_combine <- function(signatures, model){
   # Create a data.frame
   df_signatures_combined <- do.call(rbind, ls_signatures)
 
-  # Perform the addition
+  # Format the data.frame
+  if(format == "signature"){
+    df_signatures_collapsed <- sig_combine_collapse_to_single_signature(df_signatures_combined)
+    return(df_signatures_collapsed)
+  }
+
+  # Return the data.frame
   return(df_signatures_combined)
 }
 

@@ -4,14 +4,7 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
-```
+
 
 # sigstats
 
@@ -36,7 +29,8 @@ pak::pak("selkamand/sigstats")
 ## Quick Start
 
 
-```{r fig.width=10, fig.height=4}
+
+``` r
 library(sigstats)
 library(sigstash)
 library(sigvis)
@@ -57,14 +51,20 @@ sig_visualise(
   title = "Model",
   subtitle = "Created by combining SBS2 (40%) and SBS13 (60%)"
   )
+#> ✔ All channels matched perfectly to set [sbs_96]. Using this set for sort order
+#> ✔ All types matched perfectly to set [sbs_type]. Using this set for sort order
+#> ✔ Types matched perfectly to palette [snv_type]
 ```
+
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
 
 ### Reconstruct a mutation catalogue from a signature model
 
 We often need to reconstruct a catalogue (or tally) from our signature model.
 
-```{r fig.width=10, fig.height=4}
+
+``` r
 # Load a signature collection
 signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
 
@@ -85,5 +85,10 @@ sig_visualise(
   title = "Reconstructed Catalogue",
   subtitle = "Expected profile of a sample with 200 mutations: 40% from SBS2, 60% from SBS13"
   )
+#> ✔ All channels matched perfectly to set [sbs_96]. Using this set for sort order
+#> ✔ All types matched perfectly to set [sbs_type]. Using this set for sort order
+#> ✔ Types matched perfectly to palette [snv_type]
 ```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
