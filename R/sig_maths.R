@@ -125,8 +125,8 @@ sig_combine_collapse_to_single_signature <- function(signature_combination){
 sig_cosine_similarity <- function(signature1,signature2, assume_sensible_input = FALSE){
 
   if(!assume_sensible_input){
-    sigshared::assert_signature(signature1)
-    sigshared::assert_signature(signature2)
+    sigshared::assert_signature(signature1, must_sum_to_one = FALSE)
+    sigshared::assert_signature(signature2, must_sum_to_one = FALSE)
 
     # Ensure signatures are sorted the same way 'type channel' match 1:1 (including order)
     sig1_type_channel_id = paste(signature1[['type']], signature1[['channel']])
@@ -178,7 +178,7 @@ sig_reconstruct <- function(signature, n){
 
   # assertions
   assertions::assert_number(n)
-  sigshared::assert_signature(signature)
+  sigshared::assert_signature(signature, must_sum_to_one = FALSE)
 
   # Convert signature to catalogue
   signature[['count']] <- signature[['fraction']] * n
@@ -207,8 +207,8 @@ sig_reconstruct <- function(signature, n){
 #' sig_subtract(signatures[['SBS3']], signatures[['SBS4']])
 #'
 sig_subtract <- function(signature1, signature2){
-  sigshared::assert_signature(signature1)
-  sigshared::assert_signature(signature2)
+  sigshared::assert_signature(signature1, must_sum_to_one = FALSE)
+  sigshared::assert_signature(signature2, must_sum_to_one = FALSE)
 
   # Ensure signatures are sorted the same way 'type channel' match 1:1 (including order)
   sig1_type_channel_id = paste(signature1[['type']], signature1[['channel']])

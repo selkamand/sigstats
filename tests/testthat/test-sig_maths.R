@@ -9,6 +9,10 @@ test_that("sig_combine works", {
     sigshared::assert_signature(sig_combine(signatures, model = model, format = "signature"), must_sum_to_one = FALSE),
     NA
   )
+
+  # Check Reconstruction Works with signatures where fraction sums to < 1
+  combined_signature <- sig_combine(signatures, model = model, format = "signature")
+  expect_error(sig_reconstruct(combined_signature, n = 100), regexp = NA)
 })
 
 test_that("sig_cosine_similarity works", {
