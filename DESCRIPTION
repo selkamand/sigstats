@@ -10,7 +10,7 @@ Description: sigstats provides tools for performing common mathematical operatio
   `The package is designed to work seamlessly with other sigverse packages like sigstash and sigvis.
 License: MIT + file LICENSE
 Suggests: 
-    sigstash,
+    sigstash (>= 0.0.0.9000),
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Encoding: UTF-8
@@ -23,6 +23,7 @@ Imports:
     sigshared (>= 0.0.0.9000),
     stats
 Remotes: 
-    selkamand/sigshared
+    selkamand/sigshared,
+    selkamand/sigstash
 URL: https://github.com/selkamand/sigstats, https://selkamand.github.io/sigstats/
 BugReports: https://github.com/selkamand/sigstats/issues
