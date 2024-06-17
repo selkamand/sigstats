@@ -148,7 +148,6 @@ sim_cosine <- function(x, y){
 #'
 #' @param signature a data.frame in sigverse signature format
 #' @param n total number of variants to use for reconstruction
-#'
 #' @return data.frame conforming to sigverse catalogue format
 #' @export
 #'
@@ -182,6 +181,9 @@ sig_reconstruct <- function(signature, n){
 
   # Convert signature to catalogue
   signature[['count']] <- signature[['fraction']] * n
+
+  # Automatically fix catalogue fraction just in case signature it was generated from doesn't sum to 1
+  signature[['fraction']] <- signature[['count']]/sum(signature[['count']], na.rm = TRUE)
 
   return(signature)
 }
