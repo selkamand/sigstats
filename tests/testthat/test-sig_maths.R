@@ -86,3 +86,15 @@ test_that("sig_cosine_similarity works", {
   expect_error(sig_cosine_similarity(sig1, sig8), regexp = "different")
 })
 
+test_that("sig_reconstruct works", {
+  signatures <-  sigshared::example_valid_signature_collection()
+  model <- c('sig1' = 0.1, 'sig2' = 0.3)
+  model_sig <- sig_combine(signatures, model = model, format = "signature")
+  reconstructed_catalogue <- sig_reconstruct(model_sig, n = 100)
+
+  # Check format = signature outputs a valid signature object
+  expect_error(
+    sigshared::assert_catalogue(reconstructed_catalogue, must_sum_to_one = TRUE),
+    NA
+  )
+})
