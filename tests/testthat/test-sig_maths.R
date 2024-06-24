@@ -104,6 +104,17 @@ test_that("sig_cosine_similarity works", {
   expect_equal(sig_cosine_similarity(sig1, sig4), expected = 0.97463185)
   expect_equal(sig_cosine_similarity(sig1, sig5), expected = 0.53625854)
 
+  #Expect 0 when empty signatures are used
+  expect_equal(sig_cosine_similarity(sigshared::example_valid_signature_empty(), sigshared::example_valid_signature_empty()), expected = 0)
+  expect_equal(sig_cosine_similarity(sigshared::example_valid_signature(), sigshared::example_valid_signature_empty()), expected = 0)
+
+  # Works when comparing sigs to catalogues
+  expect_equal(sig_cosine_similarity(
+    sigshared::example_valid_signature(),
+    sigshared::example_valid_catalogue()),
+    expected = 0.84672372
+  )
+
   # Fails if signatures have different channels/types
   expect_error(sig_cosine_similarity(sig1, sig6), regexp = "different")
   expect_error(sig_cosine_similarity(sig1, sig7), regexp = "different")
