@@ -48,7 +48,12 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sig_combine</span><span class="op">(</span><span class="va">signatures</span>, <span class="va">model</span>, format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"combined"</span>, <span class="st">"signature"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sig_combine</span><span class="op">(</span></span>
+<span>  <span class="va">signatures</span>,</span>
+<span>  <span class="va">model</span>,</span>
+<span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"signature"</span>, <span class="st">"combined"</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -67,6 +72,10 @@ The sum of the values in this vector should be less than or equal to 1.</p></dd>
 <dd><p>A character string indicating the output format.
 If "combined", the function returns a 'combined_signature_model' data.frame where each row represents a contribution for a particular channel from a single signature (duplicate channels are not collapsed).
 If "signature", the function returns the data in the sigverse signature format, representing a novel signature created by combining the signatures in the collection according to the ratios described by the model.</p></dd>
+
+
+<dt>verbose</dt>
+<dd><p>enables detailed output messages (flag).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -93,20 +102,103 @@ If "signature", the function returns the data in the sigverse signature format, 
 <span class="r-in"><span><span class="co"># Add selected signatures to the combined model</span></span></span>
 <span class="r-in"><span><span class="va">combined_signatures</span> <span class="op">&lt;-</span> <span class="fu">sig_combine</span><span class="op">(</span><span class="va">signatures</span>, <span class="va">model</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">combined_signatures</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 192 × 5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    signature type  channel  fraction fraction_original</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> SBS1      C&gt;A   A[C&gt;A]A 0.000<span style="text-decoration: underline;">350</span>           0.000<span style="text-decoration: underline;">876</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> SBS1      C&gt;A   A[C&gt;A]C 0.000<span style="text-decoration: underline;">888</span>           0.002<span style="text-decoration: underline;">22</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> SBS1      C&gt;A   A[C&gt;A]G 0.000<span style="text-decoration: underline;">071</span>9          0.000<span style="text-decoration: underline;">180</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> SBS1      C&gt;A   A[C&gt;A]T 0.000<span style="text-decoration: underline;">506</span>           0.001<span style="text-decoration: underline;">27</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> SBS1      C&gt;G   A[C&gt;G]A 0.000<span style="text-decoration: underline;">736</span>           0.001<span style="text-decoration: underline;">84</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> SBS1      C&gt;G   A[C&gt;G]C 0.000<span style="text-decoration: underline;">475</span>           0.001<span style="text-decoration: underline;">19</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> SBS1      C&gt;G   A[C&gt;G]G 0.000<span style="text-decoration: underline;">046</span>7          0.000<span style="text-decoration: underline;">117</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> SBS1      C&gt;G   A[C&gt;G]T 0.000<span style="text-decoration: underline;">451</span>           0.001<span style="text-decoration: underline;">13</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> SBS1      C&gt;T   A[C&gt;T]A 0.009<span style="text-decoration: underline;">89</span>            0.024<span style="text-decoration: underline;">7</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> SBS1      C&gt;T   A[C&gt;T]C 0.002<span style="text-decoration: underline;">46</span>            0.006<span style="text-decoration: underline;">15</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 182 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    type channel     fraction</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   C&gt;A A[C&gt;A]A 3.507565e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   C&gt;A A[C&gt;A]C 9.753506e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   C&gt;A A[C&gt;A]G 1.040620e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   C&gt;A A[C&gt;A]T 5.645758e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   C&gt;G A[C&gt;G]A 7.356219e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   C&gt;G A[C&gt;G]C 5.536380e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7   C&gt;G A[C&gt;G]G 5.605870e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8   C&gt;G A[C&gt;G]T 5.052782e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9   C&gt;T A[C&gt;T]A 9.923988e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10  C&gt;T A[C&gt;T]C 3.275645e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11  C&gt;T A[C&gt;T]G 1.482697e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12  C&gt;T A[C&gt;T]T 4.900869e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13  T&gt;A A[T&gt;A]A 3.704447e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14  T&gt;A A[T&gt;A]C 1.405570e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15  T&gt;A A[T&gt;A]G 4.620521e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16  T&gt;A A[T&gt;A]T 7.178224e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17  T&gt;C A[T&gt;C]A 4.637984e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18  T&gt;C A[T&gt;C]C 1.213215e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19  T&gt;C A[T&gt;C]G 4.939210e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20  T&gt;C A[T&gt;C]T 2.343610e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21  T&gt;G A[T&gt;G]A 2.086691e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22  T&gt;G A[T&gt;G]C 1.263457e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23  T&gt;G A[T&gt;G]G 1.062807e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24  T&gt;G A[T&gt;G]T 4.616597e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25  C&gt;A C[C&gt;A]A 2.451991e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26  C&gt;A C[C&gt;A]C 7.513668e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27  C&gt;A C[C&gt;A]G 3.678179e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28  C&gt;A C[C&gt;A]T 2.493459e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29  C&gt;G C[C&gt;G]A 9.424529e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30  C&gt;G C[C&gt;G]C 2.363192e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31  C&gt;G C[C&gt;G]G 1.680262e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32  C&gt;G C[C&gt;G]T 3.766841e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33  C&gt;T C[C&gt;T]A 3.340651e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34  C&gt;T C[C&gt;T]C 2.048862e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35  C&gt;T C[C&gt;T]G 7.900789e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36  C&gt;T C[C&gt;T]T 9.354423e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37  T&gt;A C[T&gt;A]A 1.615965e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38  T&gt;A C[T&gt;A]C 3.007052e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39  T&gt;A C[T&gt;A]G 2.161075e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40  T&gt;A C[T&gt;A]T 1.028904e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 41  T&gt;C C[T&gt;C]A 1.798213e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 42  T&gt;C C[T&gt;C]C 1.002896e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43  T&gt;C C[T&gt;C]G 1.415402e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 44  T&gt;C C[T&gt;C]T 1.283336e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 45  T&gt;G C[T&gt;G]A 1.050587e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 46  T&gt;G C[T&gt;G]C 1.761738e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 47  T&gt;G C[T&gt;G]G 1.223743e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 48  T&gt;G C[T&gt;G]T 1.893343e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 49  C&gt;A G[C&gt;A]A 6.739429e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 50  C&gt;A G[C&gt;A]C 1.317277e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 51  C&gt;A G[C&gt;A]G 2.414671e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 52  C&gt;A G[C&gt;A]T 3.039667e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 53  C&gt;G G[C&gt;G]A 4.280223e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 54  C&gt;G G[C&gt;G]C 2.173235e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 55  C&gt;G G[C&gt;G]G 6.592130e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 56  C&gt;G G[C&gt;G]T 7.955379e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 57  C&gt;T G[C&gt;T]A 1.749326e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 58  C&gt;T G[C&gt;T]C 3.613588e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 59  C&gt;T G[C&gt;T]G 8.657135e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 60  C&gt;T G[C&gt;T]T 4.497471e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 61  T&gt;A G[T&gt;A]A 3.173979e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 62  T&gt;A G[T&gt;A]C 1.282647e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 63  T&gt;A G[T&gt;A]G 1.353408e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 64  T&gt;A G[T&gt;A]T 1.408428e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 65  T&gt;C G[T&gt;C]A 4.104283e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 66  T&gt;C G[T&gt;C]C 7.606214e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 67  T&gt;C G[T&gt;C]G 5.261763e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 68  T&gt;C G[T&gt;C]T 3.598995e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 69  T&gt;G G[T&gt;G]A 1.237254e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 70  T&gt;G G[T&gt;G]C 7.891291e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 71  T&gt;G G[T&gt;G]G 1.596591e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 72  T&gt;G G[T&gt;G]T 5.823419e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 73  C&gt;A T[C&gt;A]A 4.088038e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 74  C&gt;A T[C&gt;A]C 1.100521e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 75  C&gt;A T[C&gt;A]G 5.188617e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 76  C&gt;A T[C&gt;A]T 2.670355e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 77  C&gt;G T[C&gt;G]A 2.217865e-16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 78  C&gt;G T[C&gt;G]C 1.391628e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 79  C&gt;G T[C&gt;G]G 5.293497e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 80  C&gt;G T[C&gt;G]T 1.329548e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 81  C&gt;T T[C&gt;T]A 3.215172e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 82  C&gt;T T[C&gt;T]C 5.819379e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 83  C&gt;T T[C&gt;T]G 7.106643e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 84  C&gt;T T[C&gt;T]T 1.804772e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 85  T&gt;A T[T&gt;A]A 2.858385e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 86  T&gt;A T[T&gt;A]C 1.165516e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 87  T&gt;A T[T&gt;A]G 4.116638e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 88  T&gt;A T[T&gt;A]T 1.010989e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 89  T&gt;C T[T&gt;C]A 9.904566e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 90  T&gt;C T[T&gt;C]C 1.385195e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 91  T&gt;C T[T&gt;C]G 2.350857e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 92  T&gt;C T[T&gt;C]T 1.731088e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 93  T&gt;G T[T&gt;G]A 9.823727e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 94  T&gt;G T[T&gt;G]C 6.482091e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 95  T&gt;G T[T&gt;G]G 2.883043e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 96  T&gt;G T[T&gt;G]T 2.214016e-16</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Visualise using sigvis</span></span></span>
 <span class="r-in"><span></span></span>
