@@ -1,7 +1,7 @@
 test_that("sig_combine works", {
   signatures <-  sigshared::example_valid_signature_collection()
   model <- c('sig1' = 0.1, 'sig2' = 0.3)
-  expect_error(sig_combine(signatures, model = model), NA)
+  expect_error(sig_combine(signatures, model = model, format="combined"), NA)
 
 
   # Check format = signature outputs a valid signature object
@@ -13,6 +13,30 @@ test_that("sig_combine works", {
   # Check Reconstruction Works with signatures where fraction sums to < 1
   combined_signature <- sig_combine(signatures, model = model, format = "signature")
   expect_error(sig_reconstruct(combined_signature, n = 100), regexp = NA)
+
+  # Check combination works when model is 0-length numeric vector
+  expect_error(sig_combine(signatures, model = numeric(0), format = "signature"), NA)
+  empty_model_result <- sig_combine(signatures, model = numeric(0), format = "signature")
+  expect_equal(nrow(empty_model_result), 3)
+  expect_equal(empty_model_result[["signature"]], signatures[[1]][["signature"]])
+  expect_equal(empty_model_result[["type"]], signatures[[1]][["type"]])
+  expect_equal(empty_model_result[["fraction"]], c(0, 0, 0))
+
+  # Fails if model is 0-length numeric vector and format=combined
+  expect_error(sig_combine(signatures, model = numeric(0), format = "combined"), "sensible")
+
+  # Check combination works when model is NULL
+  expect_error(sig_combine(signatures, model = NULL, format = "signature"), NA)
+  empty_model_result <- sig_combine(signatures, model = NULL, format = "signature")
+  expect_equal(nrow(empty_model_result), 3)
+  expect_equal(empty_model_result[["signature"]], signatures[[1]][["signature"]])
+  expect_equal(empty_model_result[["type"]], signatures[[1]][["type"]])
+  expect_equal(empty_model_result[["fraction"]], c(0, 0, 0))
+
+  # Fails if model is 0-length numeric vector and format=combined
+  expect_error(sig_combine(signatures, model = NULL, format = "combined"), "sensible")
+
+
 })
 
 test_that("sig_cosine_similarity works", {
