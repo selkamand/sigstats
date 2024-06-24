@@ -1,3 +1,10 @@
+`%||%` <- function(lhs, rhs){
+ if(is.null(lhs))
+   return(rhs)
+  else
+    return(lhs)
+}
+
 #' Add Signatures to a Combined Signature Model
 #'
 #' This function takes a signature collection and a model as input and adds selected signatures to a combined signature model. The default output is a data.frame in the 'combined_signature_model' style data.frame format from the Sigverse package.
@@ -9,7 +16,7 @@
 #' @param format A character string indicating the output format.
 #' If "combined", the function returns a 'combined_signature_model' data.frame where each row represents a contribution for a particular channel from a single signature (duplicate channels are not collapsed).
 #' If "signature", the function returns the data in the sigverse signature format, representing a novel signature created by combining the signatures in the collection according to the ratios described by the model.
-#'
+#' @param verbose enables detailed output messages (flag).
 #' @return A data.frame in the 'combined_signature_model' style containing the selected signatures and their modified fractions based on the model.
 #'
 #' @seealso \code{\link{assert_signature_collection}}, \code{\link{assert_numeric_vector}}, \code{\link{assert_subset}}
@@ -30,7 +37,10 @@
 #' # Visualise using sigvis
 #'
 #' @export
-sig_combine <- function(signatures, model, format = c("combined", "signature")){
+sig_combine <- function(signatures, model, format = c("signature", "combined"), verbose=FALSE){
+
+  # Null replacements
+  model <- model %||% numeric(0)
 
   # Assertions
   sigshared::assert_signature_collection(signatures)
@@ -41,6 +51,23 @@ sig_combine <- function(signatures, model, format = c("combined", "signature")){
   assertions::assert_subset(model_signatures, names(signatures))
   assertions::assert(sum(model) <= 1, msg = 'Contributions of all signatures in model should add up to <= 1, not [{sum(model)}]')
   assertions::assert_no_duplicates(model_signatures)
+
+  # Deal with the case that model vector has no length.
+  # If format="signature" we can just return an empty signature (all fraction values = 0)
+  # If the format="combined" (individual signature contributions preserved in dataframe) there is no
+  # Sensible way to represent an model with no contributions, and so an error is thrown
+  if(is.null(model) | length(model_signatures) == 0){
+    assertions::assert(
+      format == "signature",
+      msg = "There is no sensible way to represent an model with no signature contributions if {.arg format='{format}'}. Try setting {.arg format='signature'}"
+    )
+    if(verbose) { warning("model vector supplied to sig_combine is empty. Returning an empty (fraction=0) signature") }
+    df_signatures = signatures[[1]]
+    df_signatures <- df_signatures[c("type", "channel", "fraction")]
+    df_signatures[["fraction"]] <- 0
+    return(df_signatures)
+  }
+
 
   # Grab relevant signatures, modify fraction to reflect the signatures total contribution, and add signature name
   ls_signatures <- lapply(model_signatures, \(signame){
