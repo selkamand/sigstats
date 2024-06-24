@@ -212,6 +212,10 @@ sig_reconstruct <- function(signature, n){
   # Automatically fix catalogue fraction just in case signature it was generated from doesn't sum to 1
   signature[['fraction']] <- signature[['count']]/sum(signature[['count']], na.rm = TRUE)
 
+  # Replace NaNs with 0 in case total counts are 0 (e.g. if empty signature is supplied)
+  signature[['fraction']][is.na(signature[['fraction']])] <- 0
+
+
   return(signature)
 }
 
