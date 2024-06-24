@@ -121,4 +121,13 @@ test_that("sig_reconstruct works", {
     sigshared::assert_catalogue(reconstructed_catalogue, must_sum_to_one = TRUE),
     NA
   )
+
+  # Test it works with empty signatures (fractions are all 0
+  sig_empty <- sigshared::example_valid_signature()
+  sig_empty[["fraction"]] <- 0
+
+  expect_error(sig_reconstruct(signature = sig_empty, n = 100), NA)
+  sig_empty_cat = sig_reconstruct(signature = sig_empty, n = 100)
+  expect_equal(sig_empty_cat[["fraction"]], c(0, 0, 0))
+
 })
