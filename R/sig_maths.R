@@ -160,8 +160,12 @@ sig_cosine_similarity <- function(signature1,signature2, assume_sensible_input =
     sig2_type_channel_id = paste(signature2[['type']], signature2[['channel']])
     assertions::assert_equal(sig1_type_channel_id, sig2_type_channel_id, msg = 'Can NOT calculate cosine similarity for two signatures/catalogues which have different types or channels.')
   }
+  cosine <- sim_cosine(signature1[['fraction']], signature2[['fraction']])
 
-  sim_cosine(signature1[['fraction']], signature2[['fraction']])
+  # If NaN (e.g.if all fractions = 0) because replace with 0
+  if(is.nan(cosine)) cosine <- 0
+
+  return(cosine)
 }
 
 
