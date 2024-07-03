@@ -39,6 +39,9 @@
 #' @export
 sig_combine <- function(signatures, model, format = c("signature", "combined"), verbose=FALSE){
 
+  # Settings
+  tolerance <- 5e-07 # Allows models to sum to anything < 1.000001
+
   # Null replacements
   model <- model %||% numeric(0)
 
@@ -49,7 +52,7 @@ sig_combine <- function(signatures, model, format = c("signature", "combined"), 
 
   model_signatures <- names(model)
   assertions::assert_subset(model_signatures, names(signatures))
-  assertions::assert(sum(model) <= 1, msg = 'Contributions of all signatures in model should add up to <= 1, not [{sum(model)}]')
+  assertions::assert(sum(model) <= 1 + tolerance, msg = 'Contributions of all signatures in model should add up to <= 1, not [{sum(model)}]')
   assertions::assert_no_duplicates(model_signatures)
 
   # Deal with the case that model vector has no length.
