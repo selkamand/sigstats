@@ -36,6 +36,9 @@ test_that("sig_combine works", {
   # Fails if model is 0-length numeric vector and format=combined
   expect_error(sig_combine(signatures, model = NULL, format = "combined"), "sensible")
 
+  # Has some tolerance in case signature models add up to 1.000000000000000444089
+  expect_error(sig_combine(signatures, model = c(sig1 = 1.000000000000000444089), format = "signature"), NA)
+
 
 })
 
