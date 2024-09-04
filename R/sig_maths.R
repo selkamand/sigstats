@@ -136,9 +136,9 @@ sig_combine_collapse_to_single_signature <- function(signature_combination){
 #' Computes cosine similarity between each pair of signatures in a sigverse signature collection
 #'
 #' @param signature1,signature2 sigverse signature data.frames
-#' @param assume_sensible_input to drastically speed up the similarity function,
-#' we an simply assume that both inputs are valid signature objects, and the channels are sorted.
-#' If speed is essential, perform these checks upstream (flag)
+#' @param assume_sensible_input A logical flag indicating whether to skip validation checks for the input signatures.
+#' Enabling this option can significantly speed up the cosine similarity calculation by assuming that both inputs are valid
+#' signature objects and that their channels are already sorted. This option should only be used when performance is critical and these assumptions can be verified upstream.
 #' @return a number between 0 and 1 representing cosine similarity
 #'
 #' @export
