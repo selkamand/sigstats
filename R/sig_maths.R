@@ -179,7 +179,7 @@ sig_cosine_similarity <- function(signature1,signature2, assume_sensible_input =
        ")
 
       # If signatures are just sorted differently, fix the sorting and continue
-      new_order_for_sig2 <- match(sig2_type_channel_id, sig1_type_channel_id)
+      new_order_for_sig2 <- match(sig1_type_channel_id, sig2_type_channel_id)
       signature2 <- signature2[new_order_for_sig2,]
     }
 

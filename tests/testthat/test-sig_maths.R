@@ -104,6 +104,12 @@ test_that("sig_cosine_similarity works", {
     fraction = c(2, 1, 3)
   ))
 
+  sig10 <- normalize_fractions(data.frame(
+    type = c('C>A', 'C>T', 'C>G'),
+    channel =  c('C>A', 'C>T', 'C>G'),
+    fraction = c(1, 3, 2)
+  ))
+
   # Expect cosine similarity of 1
   expect_equal(sig_cosine_similarity(sig1, sig2), expected = 1)
   expect_equal(sig_cosine_similarity(sig1, sig3), expected = 1)
@@ -132,6 +138,7 @@ test_that("sig_cosine_similarity works", {
   # Works even if signatures have different sorting of channels
   expect_no_error(sig_cosine_similarity(sig1, sig9))
   expect_equal(sig_cosine_similarity(sig1, sig9), expected = 1)
+  expect_equal(sig_cosine_similarity(sig9, sig10), expected = 1)
 })
 
 test_that("sig_reconstruct works", {
