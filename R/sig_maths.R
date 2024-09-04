@@ -172,11 +172,14 @@ sig_cosine_similarity <- function(signature1,signature2, assume_sensible_input =
       set_equivalent <- setequal(sig1_type_channel_id, sig2_type_channel_id) & length(sig1_type_channel_id) == length(sig2_type_channel_id)
 
       # If signatures have different channels/types throw an error
-      assertions::assert(set_equivalent, msg = "
-       Cannot calculate cosine similarity between signatures/catalogues with different types or channels:
-        \n• Unique Types/Channels in Signature1: [{unique_to_sig1}]
-        \n• Unique Types/Channels in Signature2: [{unique_to_sig2}]
-       ")
+      assertions::assert(set_equivalent, msg = c(
+        "Cannot calculate cosine similarity between signatures/catalogues with different types or channels:",
+        c(
+          "*"="Unique Types/Channels in Signature1: [{unique_to_sig1}]",
+          "*"="Unique Types/Channels in Signature2: [{unique_to_sig2}]"
+        )
+
+      ))
 
       # If signatures are just sorted differently, fix the sorting and continue
       new_order_for_sig2 <- match(sig1_type_channel_id, sig2_type_channel_id)
