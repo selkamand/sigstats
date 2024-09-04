@@ -136,9 +136,9 @@ sig_combine_collapse_to_single_signature <- function(signature_combination){
 #' Computes cosine similarity between each pair of signatures in a sigverse signature collection
 #'
 #' @param signature1,signature2 sigverse signature data.frames
-#' @param assume_sensible_input to drastically speed up the similarity function,
-#' we an simply assume that both inputs are valid signature objects, and the channels are sorted.
-#' If speed is essential, perform these checks upstream (flag)
+#' @param assume_sensible_input A logical flag indicating whether to skip validation checks for the input signatures.
+#' Enabling this option can significantly speed up the cosine similarity calculation by assuming that both inputs are valid
+#' signature objects and that their channels are already sorted. This option should only be used when performance is critical and these assumptions can be verified upstream.
 #' @return a number between 0 and 1 representing cosine similarity
 #'
 #' @export
@@ -159,9 +159,33 @@ sig_cosine_similarity <- function(signature1,signature2, assume_sensible_input =
     sigshared::assert_signature(signature2, must_sum_to_one = FALSE)
 
     # Ensure signatures are sorted the same way 'type channel' match 1:1 (including order)
-    sig1_type_channel_id = paste(signature1[['type']], signature1[['channel']])
-    sig2_type_channel_id = paste(signature2[['type']], signature2[['channel']])
-    assertions::assert_equal(sig1_type_channel_id, sig2_type_channel_id, msg = 'Can NOT calculate cosine similarity for two signatures/catalogues which have different types or channels.')
+    sig1_type_channel_id = paste0('type:', signature1[['type']],', ', 'channel:',signature1[['channel']])
+    sig2_type_channel_id = paste0('type:', signature2[['type']],', ', 'channel:',signature2[['channel']])
+    identical = identical(sig1_type_channel_id,sig2_type_channel_id)
+
+    if(!identical){
+      # Types + Channels combinations are either not identical, or sorted differently
+      unique_to_sig1 <- setdiff(sig1_type_channel_id, sig2_type_channel_id)
+      unique_to_sig2 <- setdiff(sig2_type_channel_id, sig1_type_channel_id)
+
+      # Check if they're just sorted differently
+      set_equivalent <- setequal(sig1_type_channel_id, sig2_type_channel_id) & length(sig1_type_channel_id) == length(sig2_type_channel_id)
+
+      # If signatures have different channels/types throw an error
+      assertions::assert(set_equivalent, msg = c(
+        "Cannot calculate cosine similarity between signatures/catalogues with different types or channels:",
+        c(
+          "*"="Unique Types/Channels in Signature1: [{unique_to_sig1}]",
+          "*"="Unique Types/Channels in Signature2: [{unique_to_sig2}]"
+        )
+
+      ))
+
+      # If signatures are just sorted differently, fix the sorting and continue
+      new_order_for_sig2 <- match(sig1_type_channel_id, sig2_type_channel_id)
+      signature2 <- signature2[new_order_for_sig2,]
+    }
+
   }
   cosine <- sim_cosine(signature1[['fraction']], signature2[['fraction']])
 

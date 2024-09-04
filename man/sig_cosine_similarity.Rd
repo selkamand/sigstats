@@ -9,9 +9,9 @@ sig_cosine_similarity(signature1, signature2, assume_sensible_input = FALSE)
 \arguments{
 \item{signature1, signature2}{sigverse signature data.frames}
 
-\item{assume_sensible_input}{to drastically speed up the similarity function,
-we an simply assume that both inputs are valid signature objects, and the channels are sorted.
-If speed is essential, perform these checks upstream (flag)}
+\item{assume_sensible_input}{A logical flag indicating whether to skip validation checks for the input signatures.
+Enabling this option can significantly speed up the cosine similarity calculation by assuming that both inputs are valid
+signature objects and that their channels are already sorted. This option should only be used when performance is critical and these assumptions can be verified upstream.}
 }
 \value{
 a number between 0 and 1 representing cosine similarity
