@@ -1,39 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://selkamand.github.io/sigstats/404.html</loc>
-  </url>
-  <url>
-    <loc>https://selkamand.github.io/sigstats/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://selkamand.github.io/sigstats/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://selkamand.github.io/sigstats/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://selkamand.github.io/sigstats/index.html</loc>
-  </url>
-  <url>
-    <loc>https://selkamand.github.io/sigstats/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://selkamand.github.io/sigstats/reference/sig_combine.html</loc>
-  </url>
-  <url>
-    <loc>https://selkamand.github.io/sigstats/reference/sig_combine_collapse_to_single_signature.html</loc>
-  </url>
-  <url>
-    <loc>https://selkamand.github.io/sigstats/reference/sig_compute_experimental_p_value.html</loc>
-  </url>
-  <url>
-    <loc>https://selkamand.github.io/sigstats/reference/sig_cosine_similarity.html</loc>
-  </url>
-  <url>
-    <loc>https://selkamand.github.io/sigstats/reference/sig_reconstruct.html</loc>
-  </url>
-  <url>
-    <loc>https://selkamand.github.io/sigstats/reference/sig_subtract.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://selkamand.github.io/sigstats/404.html</loc></url>
+<url><loc>https://selkamand.github.io/sigstats/LICENSE-text.html</loc></url>
+<url><loc>https://selkamand.github.io/sigstats/LICENSE.html</loc></url>
+<url><loc>https://selkamand.github.io/sigstats/authors.html</loc></url>
+<url><loc>https://selkamand.github.io/sigstats/index.html</loc></url>
+<url><loc>https://selkamand.github.io/sigstats/reference/index.html</loc></url>
+<url><loc>https://selkamand.github.io/sigstats/reference/sig_combine.html</loc></url>
+<url><loc>https://selkamand.github.io/sigstats/reference/sig_combine_collapse_to_single_signature.html</loc></url>
+<url><loc>https://selkamand.github.io/sigstats/reference/sig_compute_experimental_p_value.html</loc></url>
+<url><loc>https://selkamand.github.io/sigstats/reference/sig_cosine_similarity.html</loc></url>
+<url><loc>https://selkamand.github.io/sigstats/reference/sig_reconstruct.html</loc></url>
+<url><loc>https://selkamand.github.io/sigstats/reference/sig_subtract.html</loc></url>
 </urlset>
+
