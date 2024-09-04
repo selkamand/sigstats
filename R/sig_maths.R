@@ -159,9 +159,30 @@ sig_cosine_similarity <- function(signature1,signature2, assume_sensible_input =
     sigshared::assert_signature(signature2, must_sum_to_one = FALSE)
 
     # Ensure signatures are sorted the same way 'type channel' match 1:1 (including order)
-    sig1_type_channel_id = paste(signature1[['type']], signature1[['channel']])
-    sig2_type_channel_id = paste(signature2[['type']], signature2[['channel']])
-    assertions::assert_equal(sig1_type_channel_id, sig2_type_channel_id, msg = 'Can NOT calculate cosine similarity for two signatures/catalogues which have different types or channels.')
+    sig1_type_channel_id = paste0('type:', signature1[['type']],', ', 'channel:',signature1[['channel']])
+    sig2_type_channel_id = paste0('type:', signature2[['type']],', ', 'channel:',signature2[['channel']])
+    identical = identical(sig1_type_channel_id,sig2_type_channel_id)
+
+    if(!identical){
+      # Types + Channels combinations are either not identical, or sorted differently
+      unique_to_sig1 <- setdiff(sig1_type_channel_id, sig2_type_channel_id)
+      unique_to_sig2 <- setdiff(sig2_type_channel_id, sig1_type_channel_id)
+
+      # Check if they're just sorted differently
+      set_equivalent <- setequal(sig1_type_channel_id, sig2_type_channel_id) & length(sig1_type_channel_id) == length(sig2_type_channel_id)
+
+      # If signatures have different channels/types throw an error
+      assertions::assert(set_equivalent, msg = "
+       Cannot calculate cosine similarity between signatures/catalogues with different types or channels:
+        \n• Unique Types/Channels in Signature1: [{unique_to_sig1}]
+        \n• Unique Types/Channels in Signature2: [{unique_to_sig2}]
+       ")
+
+      # If signatures are just sorted differently, fix the sorting and continue
+      new_order_for_sig2 <- match(sig2_type_channel_id, sig1_type_channel_id)
+      signature2 <- signature2[new_order_for_sig2,]
+    }
+
   }
   cosine <- sim_cosine(signature1[['fraction']], signature2[['fraction']])
 
