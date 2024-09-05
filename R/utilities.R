@@ -84,7 +84,7 @@ fmt_percent <- function(values, digits = 3) {
   original_names <- names(values)
 
   # Convert numeric values to percentage strings with the specified number of digits
-  formatted_values <- paste0(formatC(signif(100 * values, digits = digits), format = "f", digits = digits), "%")
+  formatted_values <- paste0(signif(100 * values, digits = digits), "%")
 
   # Restore the original names to the formatted vector
   names(formatted_values) <- original_names
