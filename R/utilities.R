@@ -18,7 +18,12 @@
 #' sig_model_to_string(model)
 #'
 #' # Example with no unexplained portion, significant digits and percentages
-#' sig_model_to_string(model, significant_digits = 3, show_percent = FALSE, include_unexplained = FALSE)
+#' sig_model_to_string(
+#'   model,
+#'   significant_digits = 3,
+#'   show_percent = FALSE,
+#'   include_unexplained = FALSE
+#'   )
 #'
 #' @export
 sig_model_to_string <- function(model,
