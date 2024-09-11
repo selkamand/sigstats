@@ -1,5 +1,5 @@
 test_that("sig_combine works", {
-  signatures <-  sigshared::example_valid_signature_collection()
+  signatures <-  sigshared::example_signature_collection()
   model <- c('sig1' = 0.1, 'sig2' = 0.3)
   expect_error(sig_combine(signatures, model = model, format="combined"), NA)
 
@@ -120,13 +120,13 @@ test_that("sig_cosine_similarity works", {
   expect_equal(sig_cosine_similarity(sig1, sig5), expected = 0.53625854)
 
   #Expect 0 when empty signatures are used
-  expect_equal(sig_cosine_similarity(sigshared::example_valid_signature_empty(), sigshared::example_valid_signature_empty()), expected = 0)
-  expect_equal(sig_cosine_similarity(sigshared::example_valid_signature(), sigshared::example_valid_signature_empty()), expected = 0)
+  expect_equal(sig_cosine_similarity(sigshared::example_signature_empty(), sigshared::example_signature_empty()), expected = 0)
+  expect_equal(sig_cosine_similarity(sigshared::example_signature(), sigshared::example_signature_empty()), expected = 0)
 
   # Works when comparing sigs to catalogues
   expect_equal(sig_cosine_similarity(
-    sigshared::example_valid_signature(),
-    sigshared::example_valid_catalogue()),
+    sigshared::example_signature(),
+    sigshared::example_catalogue()),
     expected = 0.84672372
   )
 
@@ -142,7 +142,7 @@ test_that("sig_cosine_similarity works", {
 })
 
 test_that("sig_reconstruct works", {
-  signatures <-  sigshared::example_valid_signature_collection()
+  signatures <-  sigshared::example_signature_collection()
   model <- c('sig1' = 0.1, 'sig2' = 0.3)
   model_sig <- sig_combine(signatures, model = model, format = "signature")
   reconstructed_catalogue <- sig_reconstruct(model_sig, n = 100)
@@ -154,7 +154,7 @@ test_that("sig_reconstruct works", {
   )
 
   # Test it works with empty signatures (fractions are all 0
-  sig_empty <- sigshared::example_valid_signature()
+  sig_empty <- sigshared::example_signature()
   sig_empty[["fraction"]] <- 0
 
   expect_error(sig_reconstruct(signature = sig_empty, n = 100), NA)

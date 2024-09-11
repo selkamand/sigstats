@@ -18,12 +18,14 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
 Imports: 
     assertions,
+    boxplotstats (>= 0.0.0.9000),
     lsa,
     rlang,
     sigshared (>= 0.0.0.9000),
     stats
-Remotes: 
+Remotes:  
     selkamand/sigshared,
-    selkamand/sigstash
+    selkamand/sigstash,
+    selkamand/boxplotstats
 URL: https://github.com/selkamand/sigstats, https://selkamand.github.io/sigstats/
 BugReports: https://github.com/selkamand/sigstats/issues
