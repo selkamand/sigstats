@@ -4,7 +4,11 @@
 \alias{sig_summarise_bootstraps}
 \title{Summarise Signature Bootstraps}
 \usage{
-sig_summarise_bootstraps(bootstraps, threshold, outliers_as_strings = FALSE)
+sig_summarise_bootstraps(
+  bootstraps,
+  threshold = 0.05,
+  outliers_as_strings = FALSE
+)
 }
 \arguments{
 \item{bootstraps}{A data frame containing bootstrap results in a sigverse-style format.
