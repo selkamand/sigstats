@@ -47,5 +47,5 @@ print(combined_signatures)
 
 }
 \seealso{
-\code{\link{assert_signature_collection}}, \code{\link{assert_numeric_vector}}, \code{\link{assert_subset}}
+\code{\link{example_signature_collection}} \code{\link{example_model}}
 }

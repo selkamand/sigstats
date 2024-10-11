@@ -19,7 +19,7 @@
 #' @param verbose enables detailed output messages (flag).
 #' @return A data.frame in the 'combined_signature_model' style containing the selected signatures and their modified fractions based on the model.
 #'
-#' @seealso \code{\link{assert_signature_collection}}, \code{\link{assert_numeric_vector}}, \code{\link{assert_subset}}
+#' @seealso \code{\link{example_signature_collection}} \code{\link{example_model}}
 #'
 #' @examples
 #' library(sigstash)
@@ -47,19 +47,16 @@ sig_combine <- function(signatures, model, format = c("signature", "combined"), 
 
   # Assertions
   sigshared::assert_signature_collection(signatures)
-  assertions::assert_numeric_vector(model)
+  sigshared::assert_model(model, signatures)
   format <- rlang::arg_match(format)
 
   model_signatures <- names(model)
-  assertions::assert_subset(model_signatures, names(signatures))
-  assertions::assert(sum(model) <= 1 + tolerance, msg = 'Contributions of all signatures in model should add up to <= 1, not [{sum(model)}]')
-  assertions::assert_no_duplicates(model_signatures)
 
   # Deal with the case that model vector has no length.
   # If format="signature" we can just return an empty signature (all fraction values = 0)
   # If the format="combined" (individual signature contributions preserved in dataframe) there is no
   # Sensible way to represent an model with no contributions, and so an error is thrown
-  if(is.null(model) | length(model_signatures) == 0){
+  if(length(model_signatures) == 0){
     assertions::assert(
       format == "signature",
       msg = "There is no sensible way to represent an model with no signature contributions if {.arg format='{format}'}. Try setting {.arg format='signature'}"
