@@ -12,7 +12,7 @@ sig_combine(
 )
 }
 \arguments{
-\item{signatures}{A signature collection, typically a list of data.frames where each data.frame represents a signature with specific attributes.}
+\item{signatures}{A sigverse signature collection. See (\code{\link[sigshared:signature_collection]{sigshared::example_signature_collection()}}) for details.}
 
 \item{model}{A named numeric vector representing the contribution of each signature to the combined model.
 The names correspond to the signatures, and the values represent their contributions.

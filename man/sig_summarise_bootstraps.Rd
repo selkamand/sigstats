@@ -12,7 +12,7 @@ sig_summarise_bootstraps(
 }
 \arguments{
 \item{bootstraps}{A data frame containing bootstrap results in a sigverse-style format.
-See \code{\link[sigshared:bootstraps]{sigshared::example_bootstraps()}} for an example format.}
+See \code{\link[sigshared:bootstraps]{sigshared::example_bootstraps()}} for details.}
 
 \item{threshold}{The minimum proportion of mutations that must be explained by a signature for it to be
 considered present in a bootstrap. This threshold is used for calculating

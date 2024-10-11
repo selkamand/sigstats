@@ -7,7 +7,7 @@
 sig_reconstruct(signature, n)
 }
 \arguments{
-\item{signature}{a data.frame in sigverse signature format}
+\item{signature}{a data.frame in sigverse signature format. See \code{\link[sigshared:signature]{sigshared::example_signature()}} for details.}
 
 \item{n}{total number of variants to use for reconstruction}
 }
