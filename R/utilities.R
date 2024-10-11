@@ -37,20 +37,12 @@ sig_model_to_string <- function(model,
   # Ensure model is non-null, defaulting to an empty numeric vector
   model <- model %||% numeric(0)
 
+  # Validate that the input is a named numeric vector
+  sigshared::assert_model(model)
+
   # Return an empty string if the model is empty
   if (length(model) == 0) {
     return("")
-  }
-
-  # Validate that the input is a named numeric vector
-  assertions::assert_numeric_vector(model)
-
-  # Ensure the model has names corresponding to the signatures
-  if (length(model) > 0) {
-    assertions::assert(
-      !is.null(names(model)),
-      msg = "model must be a named numeric vector where names correspond to signatures, and values represent the proportion of mutations the signature explains. No names could be found."
-    )
   }
 
   # Sort the model in descending order by contribution value
