@@ -7,7 +7,7 @@
 sig_cosine_similarity(signature1, signature2, assume_sensible_input = FALSE)
 }
 \arguments{
-\item{signature1, signature2}{sigverse signature data.frames}
+\item{signature1, signature2}{sigverse signature data.frames. See \code{\link[sigshared:signature]{sigshared::example_signature()}}.}
 
 \item{assume_sensible_input}{A logical flag indicating whether to skip validation checks for the input signatures.
 Enabling this option can significantly speed up the cosine similarity calculation by assuming that both inputs are valid

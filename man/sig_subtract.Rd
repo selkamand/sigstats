@@ -7,7 +7,7 @@
 sig_subtract(signature1, signature2)
 }
 \arguments{
-\item{signature1, signature2}{sigverse signature data.frames}
+\item{signature1, signature2}{sigverse signature data.frames. See \code{\link[sigshared:signature]{sigshared::example_signature()}}.}
 }
 \value{
 a data.frame representing a sigverse signature

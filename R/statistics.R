@@ -23,7 +23,7 @@ sig_compute_experimental_p_value <- function(bootstraps, threshold) {
 #' including quantiles, min/max contribution proportions, and an experimental p-value.
 #'
 #' @param bootstraps A data frame containing bootstrap results in a sigverse-style format.
-#'                   See [sigshared::example_bootstraps()] for an example format.
+#'                   See [sigshared::example_bootstraps()] for details.
 #' @param threshold The minimum proportion of mutations that must be explained by a signature for it to be
 #'                  considered present in a bootstrap. This threshold is used for calculating
 #'                  the experimental p-value via [sigstats::sig_compute_experimental_p_value()].

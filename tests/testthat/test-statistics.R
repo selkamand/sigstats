@@ -66,8 +66,7 @@ test_that("sig_summarise_bootstraps handles valid input", {
 
   # Check the structure of the result
   expect_true(is.data.frame(result))
-  expect_named(result, c("signatures", "min", "max", "q1", "q3", "iqr", "median", "outlier_low_threshold",
-                         "outlier_high_threshold", "outliers", "p_value"), ignore.order = TRUE)
+  expect_named(result, c('iqr', 'max', 'median', 'min', 'n', 'outlier_high_threshold', 'outlier_low_threshold', 'outliers', 'p_value', 'q1', 'q3', 'signatures'), ignore.order = TRUE)
 
   # Check if the signatures are correct
   expect_equal(sort(unique(bootstraps$signature)), sort(result$signatures))
@@ -120,9 +119,8 @@ test_that("sig_summarise_bootstraps returns correct quantiles and IQR", {
 
   # Check column names
   expect_named(result,
-               c("signatures", "min", "max", "q1", "q3", "iqr", "median", "outlier_low_threshold",
-                 "outlier_high_threshold", "outliers", "p_value")
-               , ignore.order = TRUE
+               c('iqr', 'max', 'median', 'min', 'n', 'outlier_high_threshold', 'outlier_low_threshold', 'outliers', 'p_value', 'q1', 'q3', 'signatures'),
+               ignore.order = TRUE
              )
 
 
