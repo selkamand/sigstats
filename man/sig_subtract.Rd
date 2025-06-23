@@ -2,19 +2,18 @@
 % Please edit documentation in R/sig_maths.R
 \name{sig_subtract}
 \alias{sig_subtract}
-\title{Subtract Signature}
+\title{Subtract Signatures/Catalogues}
 \usage{
 sig_subtract(signature1, signature2)
 }
 \arguments{
-\item{signature1, signature2}{sigverse signature data.frames. See \code{\link[sigshared:signature]{sigshared::example_signature()}}.}
+\item{signature1, signature2}{sigverse signature/catalogue data.frames. See \code{\link[sigshared:signature]{sigshared::example_signature()}} or \code{\link[sigshared:catalogue]{sigshared::example_catalogue()}}.}
 }
 \value{
-a data.frame representing a sigverse signature
+a data.frame representing a sigverse signature.
 }
 \description{
-Subtracts signature2 from signature1 (factions) and returns result.
-Works for only signatures. To translate to a catalogue see \code{\link[=sig_reconstruct]{sig_reconstruct()}}
+Subtracts signature2 from signature1 and returns result.
 }
 \examples{
 library(sigstash)

@@ -248,14 +248,13 @@ sig_reconstruct <- function(signature, n){
 }
 
 
-#' Subtract Signature
+#' Subtract Signatures/Catalogues
 #'
-#' Subtracts signature2 from signature1 (factions) and returns result.
-#' Works for only signatures. To translate to a catalogue see [sig_reconstruct()]
+#' Subtracts signature2 from signature1 and returns result.
 #'
-#' @param signature1,signature2 sigverse signature data.frames. See [sigshared::example_signature()].
+#' @param signature1,signature2 sigverse signature/catalogue data.frames. See [sigshared::example_signature()] or [sigshared::example_catalogue()].
 #'
-#' @return a data.frame representing a sigverse signature
+#' @return a data.frame representing a sigverse signature.
 #' @export
 #'
 #' @examples
@@ -267,17 +266,26 @@ sig_reconstruct <- function(signature, n){
 #' # Subtract signatures
 #' sig_subtract(signatures[['SBS3']], signatures[['SBS4']])
 #'
-sig_subtract <- function(signature1, signature2){
+sig_subtract <- function(signature1, signature2) {
   sigshared::assert_signature(signature1, must_sum_to_one = FALSE)
   sigshared::assert_signature(signature2, must_sum_to_one = FALSE)
 
-  # Ensure signatures are sorted the same way 'type channel' match 1:1 (including order)
-  sig1_type_channel_id = paste(signature1[['type']], signature1[['channel']])
-  sig1_type_channel_id = paste(signature2[['type']], signature2[['channel']])
-  assertions::assert_equal(sig1_type_channel_id, sig1_type_channel_id)
+  # Ensure matching structure and ordering
+  id1 <- paste(signature1[['type']], signature1[['channel']])
+  id2 <- paste(signature2[['type']], signature2[['channel']])
+  assertions::assert_equal(id1, id2, msg = "To subtract signatures they must have identical type and channel orders.")
+
+  is_catalogue <- "count" %in% colnames(signature1) && "count" %in% colnames(signature2)
 
   sig_result <- signature1
-  sig_result[['fraction']] <- signature1[['fraction']] - signature2[['fraction']]
+
+  if (is_catalogue) {
+    sig_result[["count"]] <- signature1[["count"]] - signature2[["count"]]
+    sig_result[["fraction"]] <- compute_fraction_from_count(sig_result[["count"]])
+  } else {
+    sig_result[["fraction"]] <- signature1[["fraction"]] - signature2[["fraction"]]
+  }
 
   return(sig_result)
 }
+
