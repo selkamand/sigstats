@@ -15,6 +15,9 @@ a numeric vector of fractions
 \description{
 Convert counts into fractions of total counts, dealing with zero sum counts by setting to zero instead of Inf
 }
+\details{
+Uses absolute value of counts for computing fractions.
+}
 \examples{
 compute_fraction_from_count(c(10, 2, 1000, 50, 250))
 

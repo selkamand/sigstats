@@ -82,6 +82,8 @@ is_infinite_or_na <- function(x){
 #'
 #' Convert counts into fractions of total counts, dealing with zero sum counts by setting to zero instead of Inf
 #'
+#' Uses absolute value of counts for computing fractions.
+#'
 #' @param counts a numeric vector of counts
 #'
 #' @returns a numeric vector of fractions
@@ -92,7 +94,7 @@ is_infinite_or_na <- function(x){
 #'
 compute_fraction_from_count <- function(counts){
   assertions::assert_numeric(counts)
-  fraction <- counts / sum(counts, na.rm = TRUE)
+  fraction <- abs(counts) / sum(abs(counts), na.rm = TRUE)
   fraction <- ifelse(is_infinite_or_na(fraction), yes = 0, no = fraction)
   return(fraction)
 }
