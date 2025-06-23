@@ -70,12 +70,20 @@ signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
 # Reconstruct catalogues for two pure samples (each with 100 mutations)
 catalogue1 <- sig_reconstruct(signatures[['SBS3']], n = 100)
 catalogue2 <- sig_reconstruct(signatures[['SBS4']], n = 100)
+catalogue3 <- sig_reconstruct(signatures[['SBS5']], n = 100)
 
 # Subtract catalogue2 from catalogue1
-difference <- sig_subtract(catalogue1, catalogue2)#
+difference <- catalogue1 %-% catalogue2
 
 # Inspect result
 head(difference)
+
+# Sum three catalogues
+catalogue1 %+% catalogue2 %+% catalogue3
+
+# Sum a catalogue collection
+catalogues <- list(cat1 = catalogue1, cat2 = catalogue2, cat3 = catalogue3)
+sig_sum(catalogues)
 ```
 
 

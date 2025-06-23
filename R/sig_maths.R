@@ -243,7 +243,6 @@ sig_reconstruct <- function(signature, n){
   # Replace NaNs with 0 in case total counts are 0 (e.g. if empty signature is supplied)
   signature[['fraction']][is.na(signature[['fraction']])] <- 0
 
-
   return(signature)
 }
 
@@ -264,6 +263,9 @@ sig_reconstruct <- function(signature, n){
 #' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
 #'
 #' # Subtract signatures
+#' signatures[['SBS3']] %-% signatures[['SBS4']]
+#'
+#' # Identical approach using full function name
 #' sig_subtract(signatures[['SBS3']], signatures[['SBS4']])
 #'
 sig_subtract <- function(signature1, signature2) {
@@ -287,5 +289,111 @@ sig_subtract <- function(signature1, signature2) {
   }
 
   return(sig_result)
+}
+
+#' @rdname sig_subtract
+#' @export
+`%-%` <- sig_subtract
+
+#' Add Two Catalogues
+#'
+#' Sums two sigverse-style catalogues element-wise by their `count` values.
+#'
+#' This operator provides a concise way to add two catalogues. For summing multiple
+#' catalogues, use [sig_sum()].
+#'
+#' @param catalogue1,catalogue2 Two `sigverse` catalogue data.frames.
+#'  See [sigshared::example_catalogue()].
+#'  Must have the same `type` and `channel` rows in the same order.
+#'
+#' @return A single `sigverse` catalogue data.frame with summed `count`
+#'   and recomputed `fraction` values. See [sigshared::example_catalogue()].
+#'
+#' @seealso [sig_sum()] for summing a collection of catalogues
+#'
+#' @export
+#'
+#' @examples
+#' library(sigstash)
+#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#' cat1 <- sig_reconstruct(signatures[['SBS3']], n = 100)
+#' cat2 <- sig_reconstruct(signatures[['SBS4']], n = 100)
+#'
+#' # Add two catalogues
+#' cat_sum <- cat1 %+% cat2
+#'
+#' # Add multiple catalogues via repeated %+%
+#' cat3 <- sig_reconstruct(signatures[['SBS5']], n = 100)
+#' total <- cat1 %+% cat2 %+% cat3
+#'
+#' # Addition two signatures using the full function name
+#' sig_add(cat1, cat2)
+#'
+#' # Alternatively, use sig_sum for a list of catalogues
+#' catalogues <- list(cat1 = cat1, cat2 = cat2, cat3 = cat3)
+#' total2 <- sig_sum(catalogues)
+sig_add <- function(catalogue1, catalogue2){
+  sigshared::assert_catalogue(catalogue1, must_sum_to_one = FALSE)
+  sigshared::assert_catalogue(catalogue2, must_sum_to_one = FALSE)
+
+  # Ensure matching structure and ordering
+  id1 <- paste(catalogue1[['type']], catalogue1[['channel']])
+  id2 <- paste(catalogue2[['type']], catalogue2[['channel']])
+  assertions::assert_equal(id1, id2, msg = "To sum signatures they must have identical type and channel orders.")
+
+  # Catalogue
+  cat_result <- catalogue1
+  cat_result[["count"]] <- catalogue1[["count"]] + catalogue2[["count"]]
+  cat_result[["fraction"]] <- compute_fraction_from_count(cat_result[["count"]])
+
+  return(cat_result)
+}
+
+#' @rdname sig_add
+#' @export
+`%+%` <- sig_add
+
+#' Sum a Collection Catalogues
+#'
+#' Sums a list of sigverse catalogues, or two individual catalogues, into a single result.
+#'
+#' This function is useful for aggregating catalogues across samples or replicates.
+#' If you only need to add two catalogues, you may use the [`%+%`] operator instead.
+#'
+#' @param catalogues A named list of `sigverse` catalogue data.frames. See [sigshared::example_catalogue_collection()]
+#'
+#' @return A `sigverse` catalogue data.frame representing the total. See [sigshared::example_catalogue()].
+#'
+#' @seealso [`%+%`] for summing two catalogues
+#'
+#' @export
+#'
+#' @examples
+#' library(sigstash)
+#'
+#' # Load a signature collection
+#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#'
+#' # Reconstruct catalogues for two pure samples (each with 100 mutations)
+#' catalogue1 <- sig_reconstruct(signatures[['SBS3']], n = 100)
+#' catalogue2 <- sig_reconstruct(signatures[['SBS4']], n = 100)
+#'
+#' # Sum catalogue1 and  catalogue2
+#' catalogue_sum <- catalogue1 %+% catalogue2
+#'
+#' # Sum a collection
+#' collection <- list(cat1 = catalogue1, cat2 = catalogue2)
+#' collection <- sig_sum(collection)
+sig_sum <- function(catalogues){
+  sigshared::assert_catalogue_collection(catalogues)
+  mx <- sigshared::sig_collection_reformat_list_to_matrix(catalogues, values = "count")
+  sums <- rowSums(mx)
+  channels <- rownames(mx)
+  types <- attr(mx, "types")
+
+  cat_result <- catalogues[[1]]
+  cat_result[["count"]] <- sums
+  cat_result[["fraction"]] <- compute_fraction_from_count(cat_result[["count"]])
+  return(cat_result)
 }
 

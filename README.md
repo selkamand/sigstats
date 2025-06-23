@@ -66,9 +66,10 @@ signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
 # Reconstruct catalogues for two pure samples (each with 100 mutations)
 catalogue1 <- sig_reconstruct(signatures[['SBS3']], n = 100)
 catalogue2 <- sig_reconstruct(signatures[['SBS4']], n = 100)
+catalogue3 <- sig_reconstruct(signatures[['SBS5']], n = 100)
 
 # Subtract catalogue2 from catalogue1
-difference <- sig_subtract(catalogue1, catalogue2)#
+difference <- catalogue1 %-% catalogue2
 
 # Inspect result
 head(difference)
@@ -81,6 +82,41 @@ head(difference)
 #> 4 C>A   A[C>A]T  0.0181  -1.74 
 #> 5 C>G   A[C>G]A  0.0134   1.29 
 #> 6 C>G   A[C>G]C  0.00912  0.878
+
+# Sum three catalogues
+catalogue1 %+% catalogue2 %+% catalogue3
+#> # A tibble: 96 × 4
+#>    type  channel fraction count
+#>    <chr> <chr>      <dbl> <dbl>
+#>  1 C>A   A[C>A]A  0.0251  7.54 
+#>  2 C>A   A[C>A]C  0.0196  5.87 
+#>  3 C>A   A[C>A]G  0.00661 1.98 
+#>  4 C>A   A[C>A]T  0.0162  4.86 
+#>  5 C>G   A[C>G]A  0.0123  3.69 
+#>  6 C>G   A[C>G]C  0.00668 2.00 
+#>  7 C>G   A[C>G]G  0.00112 0.336
+#>  8 C>G   A[C>G]T  0.0104  3.12 
+#>  9 C>T   A[C>T]A  0.0186  5.58 
+#> 10 C>T   A[C>T]C  0.0114  3.41 
+#> # ℹ 86 more rows
+
+# Sum a catalogue collection
+catalogues <- list(cat1 = catalogue1, cat2 = catalogue2, cat3 = catalogue3)
+sig_sum(catalogues)
+#> # A tibble: 96 × 4
+#>    type  channel fraction count
+#>    <chr> <chr>      <dbl> <dbl>
+#>  1 C>A   A[C>A]A  0.0251  7.54 
+#>  2 C>A   A[C>A]C  0.0196  5.87 
+#>  3 C>A   A[C>A]G  0.00661 1.98 
+#>  4 C>A   A[C>A]T  0.0162  4.86 
+#>  5 C>G   A[C>G]A  0.0123  3.69 
+#>  6 C>G   A[C>G]C  0.00668 2.00 
+#>  7 C>G   A[C>G]G  0.00112 0.336
+#>  8 C>G   A[C>G]T  0.0104  3.12 
+#>  9 C>T   A[C>T]A  0.0186  5.58 
+#> 10 C>T   A[C>T]C  0.0114  3.41 
+#> # ℹ 86 more rows
 ```
 
 ### Reconstruct a mutation catalogue from a signature model

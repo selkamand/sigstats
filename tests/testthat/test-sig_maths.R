@@ -276,3 +276,84 @@ test_that("Handles missing 'count' column gracefully", {
 
   expect_error(sig_subtract(sig1, sig2), "NOT a valid signature")
 })
+
+# sig_add ---------------------------------------------------------------
+test_that("sig_add adds catalogue counts and recomputes fractions", {
+  cat1 <- data.frame(type = c("A", "B"), channel = c("C1", "C2"),
+                     count = c(10, 20), fraction = c(0.33, 0.67))
+  cat2 <- data.frame(type = c("A", "B"), channel = c("C1", "C2"),
+                     count = c(5, 10), fraction = c(0.33, 0.67))
+
+  result <- sig_add(cat1, cat2)
+
+  expect_equal(result$count, c(15, 30))
+  expect_equal(result$fraction, compute_fraction_from_count(c(15, 30)))
+})
+
+test_that("sig_add throws error if type/channel order is mismatched", {
+  cat1 <- data.frame(type = c("A", "B"), channel = c("C1", "C2"),
+                     count = c(10, 20), fraction = c(0.33, 0.67))
+  cat2 <- data.frame(type = c("B", "A"), channel = c("C2", "C1"),
+                     count = c(5, 10), fraction = c(0.67, 0.33))
+
+  expect_error(sig_add(cat1, cat2), "must have identical type and channel orders")
+})
+
+test_that("sig_add returns same structure as input", {
+  cat1 <- data.frame(type = "A", channel = "C1", count = 10, fraction = 1)
+  cat2 <- data.frame(type = "A", channel = "C1", count = 20, fraction = 1)
+
+  result <- sig_add(cat1, cat2)
+
+  expect_equal(colnames(result), c("type", "channel", "count", "fraction"))
+})
+
+
+# sig_sum ---------------------------------------------------------------
+test_that("sig_sum correctly aggregates a collection of catalogues", {
+  cat1 <- data.frame(type = c("A", "B"), channel = c("C1", "C2"),
+                     count = c(10, 20), fraction = compute_fraction_from_count(c(10, 20)))
+  cat2 <- data.frame(type = c("A", "B"), channel = c("C1", "C2"),
+                     count = c(5, 5), fraction = compute_fraction_from_count(c(5, 5)))
+  cat3 <- data.frame(type = c("A", "B"), channel = c("C1", "C2"),
+                     count = c(1, 1), fraction = compute_fraction_from_count(c(1, 1)))
+
+  collection <- list(cat1 = cat1, cat2 = cat2, cat3 = cat3)
+  result <- sig_sum(collection)
+
+  expect_equal(result$count, c(16, 26))
+  expect_equal(result$fraction, compute_fraction_from_count(c(16, 26)))
+})
+
+test_that("sig_sum returns correct structure and length", {
+  cats <- list(
+    a = data.frame(type = "X", channel = "C1", count = 10, fraction = 1),
+    b = data.frame(type = "X", channel = "C1", count = 5, fraction = 1)
+  )
+
+  result <- sig_sum(cats)
+
+  expect_equal(nrow(result), 1)
+  expect_equal(result$type, "X")
+  expect_equal(result$channel, "C1")
+  expect_equal(result$count, 15)
+  expect_equal(result$fraction, 1)
+})
+
+
+# %+% minimal check -----------------------------------------------------
+test_that("%+% is equivalent to sig_add", {
+  cat1 <- data.frame(type = "A", channel = "C1", count = 10, fraction = 1)
+  cat2 <- data.frame(type = "A", channel = "C1", count = 20, fraction = 1)
+
+  expect_equal(cat1 %+% cat2, sig_add(cat1, cat2))
+})
+
+# %-% minimal check -----------------------------------------------------
+test_that("%-% is equivalent to sig_subtract", {
+  sig1 <- data.frame(type = "A", channel = "C1", fraction = 0.5)
+  sig2 <- data.frame(type = "A", channel = "C1", fraction = 0.2)
+
+  expect_equal(sig1 %-% sig2, sig_subtract(sig1, sig2))
+})
+
