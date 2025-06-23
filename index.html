@@ -81,7 +81,6 @@
 <span><span class="co"># Visualise result</span></span>
 <span><span class="fu">sig_visualise</span><span class="op">(</span></span>
 <span>  <span class="va">combined_signatures</span>, </span>
-<span>  class <span class="op">=</span> <span class="st">"model"</span>,</span>
 <span>  title <span class="op">=</span> <span class="st">"Model"</span>,</span>
 <span>  subtitle <span class="op">=</span> <span class="st">"Created by combining SBS2 (40%) and SBS13 (60%)"</span></span>
 <span>  <span class="op">)</span></span>
@@ -90,10 +89,73 @@
 <span><span class="co">#&gt; ✔ Types matched perfectly to palette [snv_type]</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-2-1.png" width="100%"></p>
 <div class="section level3">
+<h3 id="signature-operations">Signature Operations<a class="anchor" aria-label="anchor" href="#signature-operations"></a>
+</h3>
+<p>sigstats helps you add and subtract catalogues/signatures</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Load a signature collection</span></span>
+<span><span class="va">signatures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/sigstash/man/sig_load.html" class="external-link">sig_load</a></span><span class="op">(</span><span class="st">"COSMIC_v3.3.1_SBS_GRCh38"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Reconstruct catalogues for two pure samples (each with 100 mutations)</span></span>
+<span><span class="va">catalogue1</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sig_reconstruct.html">sig_reconstruct</a></span><span class="op">(</span><span class="va">signatures</span><span class="op">[[</span><span class="st">'SBS3'</span><span class="op">]</span><span class="op">]</span>, n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">catalogue2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sig_reconstruct.html">sig_reconstruct</a></span><span class="op">(</span><span class="va">signatures</span><span class="op">[[</span><span class="st">'SBS4'</span><span class="op">]</span><span class="op">]</span>, n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">catalogue3</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sig_reconstruct.html">sig_reconstruct</a></span><span class="op">(</span><span class="va">signatures</span><span class="op">[[</span><span class="st">'SBS5'</span><span class="op">]</span><span class="op">]</span>, n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Subtract catalogue2 from catalogue1</span></span>
+<span><span class="va">difference</span> <span class="op">&lt;-</span> <span class="va">catalogue1</span> <span class="op"><a href="reference/sig_subtract.html">%-%</a></span> <span class="va">catalogue2</span></span>
+<span></span>
+<span><span class="co"># Inspect result</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">difference</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 4</span></span>
+<span><span class="co">#&gt;   type  channel fraction  count</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt;  &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 C&gt;A   A[C&gt;A]A  0.0224  -2.15 </span></span>
+<span><span class="co">#&gt; 2 C&gt;A   A[C&gt;A]C  0.0173  -1.66 </span></span>
+<span><span class="co">#&gt; 3 C&gt;A   A[C&gt;A]G  0.0149  -1.43 </span></span>
+<span><span class="co">#&gt; 4 C&gt;A   A[C&gt;A]T  0.0181  -1.74 </span></span>
+<span><span class="co">#&gt; 5 C&gt;G   A[C&gt;G]A  0.0134   1.29 </span></span>
+<span><span class="co">#&gt; 6 C&gt;G   A[C&gt;G]C  0.00912  0.878</span></span>
+<span></span>
+<span><span class="co"># Sum three catalogues</span></span>
+<span><span class="va">catalogue1</span> <span class="op"><a href="reference/sig_add.html">%+%</a></span> <span class="va">catalogue2</span> <span class="op"><a href="reference/sig_add.html">%+%</a></span> <span class="va">catalogue3</span></span>
+<span><span class="co">#&gt; # A tibble: 96 × 4</span></span>
+<span><span class="co">#&gt;    type  channel fraction count</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1 C&gt;A   A[C&gt;A]A  0.0251  7.54 </span></span>
+<span><span class="co">#&gt;  2 C&gt;A   A[C&gt;A]C  0.0196  5.87 </span></span>
+<span><span class="co">#&gt;  3 C&gt;A   A[C&gt;A]G  0.00661 1.98 </span></span>
+<span><span class="co">#&gt;  4 C&gt;A   A[C&gt;A]T  0.0162  4.86 </span></span>
+<span><span class="co">#&gt;  5 C&gt;G   A[C&gt;G]A  0.0123  3.69 </span></span>
+<span><span class="co">#&gt;  6 C&gt;G   A[C&gt;G]C  0.00668 2.00 </span></span>
+<span><span class="co">#&gt;  7 C&gt;G   A[C&gt;G]G  0.00112 0.336</span></span>
+<span><span class="co">#&gt;  8 C&gt;G   A[C&gt;G]T  0.0104  3.12 </span></span>
+<span><span class="co">#&gt;  9 C&gt;T   A[C&gt;T]A  0.0186  5.58 </span></span>
+<span><span class="co">#&gt; 10 C&gt;T   A[C&gt;T]C  0.0114  3.41 </span></span>
+<span><span class="co">#&gt; # ℹ 86 more rows</span></span>
+<span></span>
+<span><span class="co"># Sum a catalogue collection</span></span>
+<span><span class="va">catalogues</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cat1 <span class="op">=</span> <span class="va">catalogue1</span>, cat2 <span class="op">=</span> <span class="va">catalogue2</span>, cat3 <span class="op">=</span> <span class="va">catalogue3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/sig_sum.html">sig_sum</a></span><span class="op">(</span><span class="va">catalogues</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 96 × 4</span></span>
+<span><span class="co">#&gt;    type  channel fraction count</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1 C&gt;A   A[C&gt;A]A  0.0251  7.54 </span></span>
+<span><span class="co">#&gt;  2 C&gt;A   A[C&gt;A]C  0.0196  5.87 </span></span>
+<span><span class="co">#&gt;  3 C&gt;A   A[C&gt;A]G  0.00661 1.98 </span></span>
+<span><span class="co">#&gt;  4 C&gt;A   A[C&gt;A]T  0.0162  4.86 </span></span>
+<span><span class="co">#&gt;  5 C&gt;G   A[C&gt;G]A  0.0123  3.69 </span></span>
+<span><span class="co">#&gt;  6 C&gt;G   A[C&gt;G]C  0.00668 2.00 </span></span>
+<span><span class="co">#&gt;  7 C&gt;G   A[C&gt;G]G  0.00112 0.336</span></span>
+<span><span class="co">#&gt;  8 C&gt;G   A[C&gt;G]T  0.0104  3.12 </span></span>
+<span><span class="co">#&gt;  9 C&gt;T   A[C&gt;T]A  0.0186  5.58 </span></span>
+<span><span class="co">#&gt; 10 C&gt;T   A[C&gt;T]C  0.0114  3.41 </span></span>
+<span><span class="co">#&gt; # ℹ 86 more rows</span></span></code></pre></div>
+</div>
+<div class="section level3">
 <h3 id="reconstruct-a-mutation-catalogue-from-a-signature-model">Reconstruct a mutation catalogue from a signature model<a class="anchor" aria-label="anchor" href="#reconstruct-a-mutation-catalogue-from-a-signature-model"></a>
 </h3>
 <p>We often need to reconstruct a catalogue (or tally) from our signature model.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load a signature collection</span></span>
 <span><span class="va">signatures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/sigstash/man/sig_load.html" class="external-link">sig_load</a></span><span class="op">(</span><span class="st">"COSMIC_v3.3.1_SBS_GRCh38"</span><span class="op">)</span></span>
 <span></span>
@@ -101,7 +163,7 @@
 <span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>SBS2 <span class="op">=</span> <span class="fl">0.4</span>, SBS13 <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create a new signature by combining SBS2 and SBS13 in ratios dictated by the above model</span></span>
-<span><span class="va">signature</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sig_combine.html">sig_combine</a></span><span class="op">(</span><span class="va">signatures</span>, <span class="va">model</span>, format <span class="op">=</span> <span class="st">"signature"</span><span class="op">)</span></span>
+<span><span class="va">signature</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sig_combine.html">sig_combine</a></span><span class="op">(</span><span class="va">signatures</span>, <span class="va">model</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Reconstruct a perfect catalogue describing what the mutational profile of a sample</span></span>
 <span><span class="co"># with 200 mutations and the given signature model would look like</span></span>
@@ -117,7 +179,7 @@
 <span><span class="co">#&gt; ✔ All channels matched perfectly to set [sbs_96]. Using this set for sort order</span></span>
 <span><span class="co">#&gt; ✔ All types matched perfectly to set [sbs_type]. Using this set for sort order</span></span>
 <span><span class="co">#&gt; ✔ Types matched perfectly to palette [snv_type]</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-3-1.png" width="100%"></p>
+<p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
 </div>
 </div>
 </div>
