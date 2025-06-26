@@ -191,6 +191,63 @@ compute_shannon_index <- function(probabilities, exponentiate = FALSE){
   return(shannon_index)
 }
 
+
+#' Compute KL Divergence from a Uniform Signature
+#'
+#' Calculates the Kullback–Leibler (KL) divergence between a mutational signature
+#' and a uniform distribution. KL divergence quantifies how much the observed
+#' mutation context distribution (the signature) deviates from an equal-weight,
+#' flat profile across all contexts.
+#'
+#' A value of 0 indicates a perfectly uniform signature. Higher values indicate
+#' more peaked or biased signatures. KL divergence is commonly used as a measure
+#' of "non-uniformity" or "distinctiveness" of mutation profiles.
+#'
+#' A small `pseudocount` is added to avoid taking the log of zero when any context
+#' has zero weight.
+#'
+#' @param signature A `sigverse` signature data.frame. Must contain a `fraction` column.
+#' @param base The logarithmic base to use (default is natural log, `exp(1)`). Use 2 for bits.
+#' @param pseudocount A small positive number added to each term to prevent log(0).
+#'
+#' @return A single numeric value representing the KL divergence from uniform.
+#'
+#' @examples
+#' library(sigstash)
+#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#' sbs3 <- signatures[["sbs3"]]
+#'
+#' # Compute KL divergence (how far is SBS3 from flat?)
+#' sig_kl_divergence(sbs3)
+#'
+#' # Use base 2 (bits)
+#' sig_kl_divergence(sbs3, base = 2)
+#'
+#' @seealso [sig_shannon()], [sig_gini()]
+#' @export
+sig_kl_divergence <- function(signature, base = exp(1), pseudocount = 1e-12){
+
+  # Assertions
+  sigshared::assert_signature(signature)
+
+  observed <- signature[["fraction"]]
+  expected <- rep(1,times = length(observed))/length(observed)
+
+  # Computation
+  compute_kl_divergence(
+    p = observed,
+    q = expected,
+    pseudocount = pseudocount,
+    base = base
+  )
+}
+
+compute_kl_divergence <- function(p, q, pseudocount = 1e-12, base = exp(1)){
+  if(all(p == 0)) return(0)
+  sum(p*log(p/(q+pseudocount), base = base), na.rm = TRUE)
+}
+# philentropy::kullback_leibler_distance(P = s[["fraction"]], Q = rep(1, times = nrow(s))/nrow(s), testNA = TRUE, unit = "log", epsilon = 1e-12)
+# philentropy::kullback_leibler_distance(c(0, 0, 2), c(0, 0, 5), epsilon = 1e-12, testNA = TRUE, unit = "log")
 #' Calculate Cosine Matrix Between Two Signatures
 #'
 #' Computes cosine similarity between each pair of signatures in a sigverse signature collection
