@@ -5,130 +5,6 @@
     return(lhs)
 }
 
-#' Add Signatures to a Combined Signature Model
-#'
-#' This function takes a signature collection and a model as input and adds
-#' selected signatures to a combined signature model.
-#' The default output is a data.frame in either sigverse signature format or the 'combined_signature_model'
-#' style depending on `format`.
-#'
-#' @param signatures A sigverse signature collection. See ([sigshared::example_signature_collection()]) for details.
-#' @param model A named numeric vector representing the contribution of each signature to the combined model.
-#' The names correspond to the signatures, and the values represent their contributions.
-#' The sum of the values in this vector should be less than or equal to 1.
-#' @param format A character string indicating the output format.
-#' If "combined", the function returns a 'combined_signature_model' data.frame where each row represents a contribution for a particular channel from a single signature (duplicate channels are not collapsed).
-#' If "signature", the function returns the data in the sigverse signature format, representing a novel signature created by combining the signatures in the collection according to the ratios described by the model.
-#' @param verbose enables detailed output messages (flag).
-#' @return A data.frame in the 'combined_signature_model' style containing the selected signatures and their modified fractions based on the model.
-#'
-#' @seealso \code{\link{example_signature_collection}} \code{\link{example_model}}
-#'
-#' @examples
-#' library(sigstash)
-#'
-#' # Load a signature collection
-#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
-#'
-#' # Create a model that represents a mix of SBS1 (40%) and SBS2 (60%)
-#' model <- c(SBS1 = 0.4, SBS2 = 0.6)
-#'
-#' # Add selected signatures to the combined model
-#' combined_signatures <- sig_combine(signatures, model)
-#' print(combined_signatures)
-#'
-#'
-#' @export
-sig_combine <- function(signatures, model, format = c("signature", "combined"), verbose=FALSE){
-
-  # Settings
-  tolerance <- 5e-07 # Allows models to sum to anything < 1.000001
-
-  # Null replacements
-  model <- model %||% numeric(0)
-
-  # Assertions
-  sigshared::assert_signature_collection(signatures)
-  sigshared::assert_model(model, signatures)
-  format <- rlang::arg_match(format)
-
-  model_signatures <- names(model)
-
-  # Deal with the case that model vector has no length.
-  # If format="signature" we can just return an empty signature (all fraction values = 0)
-  # If the format="combined" (individual signature contributions preserved in dataframe) there is no
-  # Sensible way to represent an model with no contributions, and so an error is thrown
-  if(length(model_signatures) == 0){
-    assertions::assert(
-      format == "signature",
-      msg = "There is no sensible way to represent an model with no signature contributions if {.arg format='{format}'}. Try setting {.arg format='signature'}"
-    )
-    if(verbose) { warning("model vector supplied to sig_combine is empty. Returning an empty (fraction=0) signature") }
-    df_signatures = signatures[[1]]
-    df_signatures <- df_signatures[c("type", "channel", "fraction")]
-    df_signatures[["fraction"]] <- 0
-    return(df_signatures)
-  }
-
-
-  # Grab relevant signatures, modify fraction to reflect the signatures total contribution, and add signature name
-  ls_signatures <- lapply(model_signatures, \(signame){
-    contribution = model[signame]
-    orig_sig <- signatures[[signame]]
-    new_sig <- orig_sig
-    new_sig[['fraction_original']] <- new_sig[['fraction']]
-    new_sig[['fraction']] <- orig_sig[['fraction']] * contribution
-    new_sig[['signature']] <- signame
-    new_sig <- new_sig[c('signature', names(new_sig)[-5])]
-    return(new_sig)
-  })
-
-  # Create a data.frame
-  df_signatures_combined <- do.call(rbind, ls_signatures)
-
-  # Format the data.frame
-  if(format == "signature"){
-    df_signatures_collapsed <- sig_combine_collapse_to_single_signature(df_signatures_combined)
-    return(df_signatures_collapsed)
-  }
-
-  # Return the data.frame
-  return(df_signatures_combined)
-}
-
-#' Collapse to single signatures
-#'
-#' Convert the output of [sig_combine()] into a simple sigverse signature object.
-#' This is useful when you want to run maths on a signature derived from a model
-#' Note for visualisation of signature combination models,
-#' we suggest directly using the output of [sig_combine()] in [sigvis::sig_visualise()] so that
-#' when [sigvis::sig_make_interactive()] is run the original signature contributions are preserved
-#'
-#' @param signature_combination a dataframe produced by [sig_combine()]
-#' which represents the combination of multiple signatures with known (exact) proportions - where each individual signature is kept distinct to make it easy to plot as a stackedbar
-#'
-#' @return a data.frame in sigverse signature format
-#' @export
-#'
-#' @examples
-#' library(sigstash)
-#'
-#' # Load a signature collection
-#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
-#'
-#' # Create a model that represents a mix of SBS1 (40%) and SBS2 (60%)
-#' model <- c(SBS1 = 0.4, SBS2 = 0.6)
-#'
-#' # Add selected signatures to the combined model
-#' combined_signatures <- sig_combine(signatures, model)
-#'
-#' # Flatten the combined_signatures dataframe that keeps separate signatures
-#' signature <- sig_combine_collapse_to_single_signature(combined_signatures)
-#'
-sig_combine_collapse_to_single_signature <- function(signature_combination){
-  stats::aggregate(data = signature_combination, fraction ~ type + channel, FUN = \(frac){ sum(frac)})
-}
-
 
 
 # Statistics --------------------------------------------------------------
@@ -441,6 +317,136 @@ sig_cosine_similarity <- function(signature1,signature2, assume_sensible_input =
 sim_cosine <- function(x, y){
   as.numeric(lsa::cosine(x, y))
 }
+
+
+# Operations --------------------------------------------------------------
+
+
+#' Add Signatures to a Combined Signature Model
+#'
+#' This function takes a signature collection and a model as input and adds
+#' selected signatures to a combined signature model.
+#' The default output is a data.frame in either sigverse signature format or the 'combined_signature_model'
+#' style depending on `format`.
+#'
+#' @param signatures A sigverse signature collection. See ([sigshared::example_signature_collection()]) for details.
+#' @param model A named numeric vector representing the contribution of each signature to the combined model.
+#' The names correspond to the signatures, and the values represent their contributions.
+#' The sum of the values in this vector should be less than or equal to 1.
+#' @param format A character string indicating the output format.
+#' If "combined", the function returns a 'combined_signature_model' data.frame where each row represents a contribution for a particular channel from a single signature (duplicate channels are not collapsed).
+#' If "signature", the function returns the data in the sigverse signature format, representing a novel signature created by combining the signatures in the collection according to the ratios described by the model.
+#' @param verbose enables detailed output messages (flag).
+#' @return A data.frame in the 'combined_signature_model' style containing the selected signatures and their modified fractions based on the model.
+#'
+#' @seealso \code{\link{example_signature_collection}} \code{\link{example_model}}
+#'
+#' @examples
+#' library(sigstash)
+#'
+#' # Load a signature collection
+#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#'
+#' # Create a model that represents a mix of SBS1 (40%) and SBS2 (60%)
+#' model <- c(SBS1 = 0.4, SBS2 = 0.6)
+#'
+#' # Add selected signatures to the combined model
+#' combined_signatures <- sig_combine(signatures, model)
+#' print(combined_signatures)
+#'
+#'
+#' @export
+sig_combine <- function(signatures, model, format = c("signature", "combined"), verbose=FALSE){
+
+  # Settings
+  tolerance <- 5e-07 # Allows models to sum to anything < 1.000001
+
+  # Null replacements
+  model <- model %||% numeric(0)
+
+  # Assertions
+  sigshared::assert_signature_collection(signatures)
+  sigshared::assert_model(model, signatures)
+  format <- rlang::arg_match(format)
+
+  model_signatures <- names(model)
+
+  # Deal with the case that model vector has no length.
+  # If format="signature" we can just return an empty signature (all fraction values = 0)
+  # If the format="combined" (individual signature contributions preserved in dataframe) there is no
+  # Sensible way to represent an model with no contributions, and so an error is thrown
+  if(length(model_signatures) == 0){
+    assertions::assert(
+      format == "signature",
+      msg = "There is no sensible way to represent an model with no signature contributions if {.arg format='{format}'}. Try setting {.arg format='signature'}"
+    )
+    if(verbose) { warning("model vector supplied to sig_combine is empty. Returning an empty (fraction=0) signature") }
+    df_signatures = signatures[[1]]
+    df_signatures <- df_signatures[c("type", "channel", "fraction")]
+    df_signatures[["fraction"]] <- 0
+    return(df_signatures)
+  }
+
+
+  # Grab relevant signatures, modify fraction to reflect the signatures total contribution, and add signature name
+  ls_signatures <- lapply(model_signatures, function(signame){
+    contribution = model[signame]
+    orig_sig <- signatures[[signame]]
+    new_sig <- orig_sig
+    new_sig[['fraction_original']] <- new_sig[['fraction']]
+    new_sig[['fraction']] <- orig_sig[['fraction']] * contribution
+    new_sig[['signature']] <- signame
+    new_sig <- new_sig[c('signature', names(new_sig)[-5])]
+    return(new_sig)
+  })
+
+  # Create a data.frame
+  df_signatures_combined <- do.call(rbind, ls_signatures)
+
+  # Format the data.frame
+  if(format == "signature"){
+    df_signatures_collapsed <- sig_combine_collapse_to_single_signature(df_signatures_combined)
+    return(df_signatures_collapsed)
+  }
+
+  # Return the data.frame
+  return(df_signatures_combined)
+}
+
+#' Collapse to single signatures
+#'
+#' Convert the output of [sig_combine()] into a simple sigverse signature object.
+#' This is useful when you want to run maths on a signature derived from a model
+#' Note for visualisation of signature combination models,
+#' we suggest directly using the output of [sig_combine()] in [sigvis::sig_visualise()] so that
+#' when [sigvis::sig_make_interactive()] is run the original signature contributions are preserved
+#'
+#' @param signature_combination a dataframe produced by [sig_combine()]
+#' which represents the combination of multiple signatures with known (exact) proportions - where each individual signature is kept distinct to make it easy to plot as a stackedbar
+#'
+#' @return a data.frame in sigverse signature format
+#' @export
+#'
+#' @examples
+#' library(sigstash)
+#'
+#' # Load a signature collection
+#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#'
+#' # Create a model that represents a mix of SBS1 (40%) and SBS2 (60%)
+#' model <- c(SBS1 = 0.4, SBS2 = 0.6)
+#'
+#' # Add selected signatures to the combined model
+#' combined_signatures <- sig_combine(signatures, model)
+#'
+#' # Flatten the combined_signatures dataframe that keeps separate signatures
+#' signature <- sig_combine_collapse_to_single_signature(combined_signatures)
+#'
+sig_combine_collapse_to_single_signature <- function(signature_combination){
+  stats::aggregate(data = signature_combination, fraction ~ type + channel, FUN = function(frac){ sum(frac)})
+}
+
+
 
 #' Reconstruct a catalogue from a signature
 #'
