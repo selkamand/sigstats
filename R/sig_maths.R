@@ -91,7 +91,7 @@ compute_shannon_index <- function(probabilities, exponentiate = FALSE){
 #' @examples
 #' library(sigstash)
 #' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
-#' sbs3 <- signatures[["sbs3"]]
+#' sbs3 <- signatures[["SBS3"]]
 #'
 #' # Compute KL divergence (how far is SBS3 from flat?)
 #' sig_kl_divergence(sbs3)
@@ -121,6 +121,52 @@ sig_kl_divergence <- function(signature, base = exp(1), pseudocount = 1e-12){
 compute_kl_divergence <- function(p, q, pseudocount = 1e-12, base = exp(1)){
   if(all(p == 0)) return(0)
   sum(p*log(p/(q+pseudocount), base = base), na.rm = TRUE)
+}
+
+
+#' Compute the Gini Coefficient of a Signature or Catalogue
+#'
+#' Calculates the **Gini coefficient**, a measure of inequality or concentration,
+#' for a `sigverse` signature or catalogue. It ranges from:
+#'
+#' - **0**: perfectly uniform distribution (e.g. all 96 contexts equal)
+#' - **1**: total concentration in a single context
+#'
+#' The Gini coefficient complements entropy-based measures like Shannon index by capturing
+#' the *inequality* of the distribution, rather than uncertainty or diversity.
+#'
+#' This function uses the **biased version** of the Gini coefficient (dividing by _n_), which is:
+#' - The **standard definition** used in descriptive analysis
+#' - More appropriate when the signature is a full population profile rather than a random sample
+#' - Consistent with usage in mutation signature literature
+#'
+#' @param signature A `sigverse` signature or catalogue data.frame.
+#'
+#' @return A numeric value between 0 and 1 representing the Gini coefficient.
+#'
+#' @examples
+#' library(sigstash)
+#' sigs <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#'
+#' sig_gini(sigs[["SBS1"]])  # moderately peaked
+#' sig_gini(sigs[["SBS48"]]) # highly peaked, close to 1
+#'
+#'
+#' @seealso [sig_shannon()], [sig_kl_divergence()], [sig_l2_norm()]
+#' @export
+sig_gini <- function(signature){
+  sigshared::assert_signature(signature)
+
+  vec <- signature[["fraction"]]
+  compute_gini(vec)
+}
+
+compute_gini <- function(x) {
+  x <- sort(x)
+  n <- length(x)
+  if (all(x == 0)) return(0)  # define Gini = 0 when all entries are 0
+  G <- sum((2 * seq_len(n) - n - 1) * x)
+  G / (n * sum(x))
 }
 
 #' Compute the L2 Norm of a Signature or Catalogue
@@ -192,7 +238,7 @@ sig_l2_norm <- function(signature, value = c("fraction", "count"), scale = FALSE
 #' A smaller value indicates more similar signatures, while larger values indicate greater dissimilarity.
 #' This is often used as a simple and fast alternative to cosine similarity or KL divergence.
 #'
-#' @param signature1, signature2 Two `sigverse` signatures or catalogues.
+#' @param signature1,signature2 Two `sigverse` signatures or catalogues.
 #'   See [sigshared::example_signature()] or [sigshared::example_catalogue()].
 #'   Must contain matching `channel` values in identical order.
 #' @param value A character string: `"fraction"` for normalised signatures or `"count"` for raw catalogues.
@@ -238,7 +284,6 @@ sig_l2_distance <- function(signature1, signature2, value = c("fraction", "count
 
   return(norm)
 }
-
 
 compute_l2_norm <- function(vec){
   compute_norm(vec, 2)

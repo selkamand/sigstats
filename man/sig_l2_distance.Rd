@@ -12,7 +12,7 @@ sig_l2_distance(
 )
 }
 \arguments{
-\item{signature1, }{signature2 Two \code{sigverse} signatures or catalogues.
+\item{signature1, signature2}{Two \code{sigverse} signatures or catalogues.
 See \code{\link[sigshared:signature]{sigshared::example_signature()}} or \code{\link[sigshared:catalogue]{sigshared::example_catalogue()}}.
 Must contain matching \code{channel} values in identical order.}
 

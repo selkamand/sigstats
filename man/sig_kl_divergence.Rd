@@ -33,7 +33,7 @@ has zero weight.
 \examples{
 library(sigstash)
 signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
-sbs3 <- signatures[["sbs3"]]
+sbs3 <- signatures[["SBS3"]]
 
 # Compute KL divergence (how far is SBS3 from flat?)
 sig_kl_divergence(sbs3)
