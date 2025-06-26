@@ -56,16 +56,6 @@ sig_shannon <- function(signature, exponentiate = FALSE){
   return(shannon_index)
 }
 
-compute_shannon_index <- function(probabilities, exponentiate = FALSE){
-  shannon_index <- -sum(probabilities * log(probabilities))
-
-
-  if(exponentiate){
-    return(exp(shannon_index))
-  }
-
-  return(shannon_index)
-}
 
 
 #' Compute KL Divergence from a Uniform Signature
@@ -118,10 +108,7 @@ sig_kl_divergence <- function(signature, base = exp(1), pseudocount = 1e-12){
   )
 }
 
-compute_kl_divergence <- function(p, q, pseudocount = 1e-12, base = exp(1)){
-  if(all(p == 0)) return(0)
-  sum(p*log(p/(q+pseudocount), base = base), na.rm = TRUE)
-}
+
 
 
 #' Compute the Gini Coefficient of a Signature or Catalogue
@@ -161,13 +148,7 @@ sig_gini <- function(signature){
   compute_gini(vec)
 }
 
-compute_gini <- function(x) {
-  x <- sort(x)
-  n <- length(x)
-  if (all(x == 0)) return(0)  # define Gini = 0 when all entries are 0
-  G <- sum((2 * seq_len(n) - n - 1) * x)
-  G / (n * sum(x))
-}
+
 
 #' Compute the L2 Norm of a Signature or Catalogue
 #'
@@ -264,6 +245,44 @@ sig_l2_norm <- function(signature, value = c("fraction", "count"), scale = FALSE
 #'
 #' @export
 sig_l2_distance <- function(signature1, signature2, value = c("fraction", "count"), scale = FALSE){
+  sig_lp_distance(signature1 = signature1, signature2 = signature2, p = 2, value = value, scale = scale)
+}
+
+#' Compute L<sub>p</sub> Distance Between Two Signatures
+#'
+#' Calculates the L<sub>p</sub> distance (also known as the Minkowski distance)
+#' between two `sigverse` signatures or catalogues. This generalizes various distance
+#' metrics depending on the choice of `p`:
+#'
+#' - `p = 1`: Manhattan distance (sum of absolute differences)
+#' - `p = 2`: Euclidean (L2) distance
+#' - `p = ∞`: Chebyshev distance (maximum absolute difference)
+#'
+#' This function is useful for flexible distance computations when comparing
+#' mutational signatures or catalogues. All channels must match and be in the same order.
+#'
+#' By default, distances are computed using raw values. If `scale = TRUE`, the distance is
+#' divided by the number of mutation contexts to allow comparisons across different signature types
+#' (e.g. SBS vs DBS).
+#'
+#' @param signature1, signature2 Two `sigverse` signature or catalogue data.frames.
+#' @param p A numeric value ≥ 1 indicating the order of the L<sub>p</sub> norm to compute.
+#' @param value Either `"fraction"` (default) or `"count"` — determines which column is used for comparison.
+#' @param scale Logical. If `TRUE`, distance is divided by the number of contexts (i.e. channels).
+#'
+#' @return A non-negative numeric value representing the L<sub>p</sub> distance between the two profiles.
+#'
+#' @examples
+#' library(sigstash)
+#' sigs <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#'
+#' sig_lp_distance(sigs[["SBS1"]], sigs[["SBS5"]], p = 1)  # L1 (Manhattan)
+#' sig_lp_distance(sigs[["SBS1"]], sigs[["SBS5"]], p = 2)  # L2 (Euclidean)
+#' sig_lp_distance(sigs[["SBS1"]], sigs[["SBS5"]], p = 1, scale = TRUE)
+#'
+#' @seealso [sig_l2_distance()], [sig_cosine_similarity()]
+#' @export
+sig_lp_distance <- function(signature1, signature2, p, value = c("fraction", "count"), scale = FALSE){
 
   # Assertions
   value <- rlang::arg_match(value)
@@ -275,7 +294,7 @@ sig_l2_distance <- function(signature1, signature2, value = c("fraction", "count
   # Computation
   vec <- signature1[[value]] - signature2[[value]]
 
-  norm <- compute_l2_norm(vec)
+  norm <- compute_norm(vec, p = p)
 
   # Scale by number of channels
   if(scale) {
@@ -285,6 +304,31 @@ sig_l2_distance <- function(signature1, signature2, value = c("fraction", "count
   return(norm)
 }
 
+
+compute_shannon_index <- function(probabilities, exponentiate = FALSE){
+  shannon_index <- -sum(probabilities * log(probabilities))
+
+
+  if(exponentiate){
+    return(exp(shannon_index))
+  }
+
+  return(shannon_index)
+}
+
+compute_kl_divergence <- function(p, q, pseudocount = 1e-12, base = exp(1)){
+  if(all(p == 0)) return(0)
+  sum(p*log(p/(q+pseudocount), base = base), na.rm = TRUE)
+}
+
+compute_gini <- function(x) {
+  x <- sort(x)
+  n <- length(x)
+  if (all(x == 0)) return(0)  # define Gini = 0 when all entries are 0
+  G <- sum((2 * seq_len(n) - n - 1) * x)
+  G / (n * sum(x))
+}
+
 compute_l2_norm <- function(vec){
   compute_norm(vec, 2)
 }
@@ -292,6 +336,9 @@ compute_l2_norm <- function(vec){
 compute_norm <- function(vec, p){
   (sum(vec^p))^(1/p)
 }
+
+
+
 
 #' Calculate Cosine Matrix Between Two Signatures
 #'
