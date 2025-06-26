@@ -246,8 +246,132 @@ compute_kl_divergence <- function(p, q, pseudocount = 1e-12, base = exp(1)){
   if(all(p == 0)) return(0)
   sum(p*log(p/(q+pseudocount), base = base), na.rm = TRUE)
 }
-# philentropy::kullback_leibler_distance(P = s[["fraction"]], Q = rep(1, times = nrow(s))/nrow(s), testNA = TRUE, unit = "log", epsilon = 1e-12)
-# philentropy::kullback_leibler_distance(c(0, 0, 2), c(0, 0, 5), epsilon = 1e-12, testNA = TRUE, unit = "log")
+
+#' Compute the L2 Norm of a Signature or Catalogue
+#'
+#' Calculates the **L2 norm** (Euclidean norm) of a `sigverse` signature or catalogue.
+#' This provides a quantitative measure of how concentrated or dispersed the distribution is.
+#'
+#' For a vector \( x \), the L2 norm is defined as:
+#' \deqn{\|x\|_2 = \sqrt{\sum_i x_i^2}}
+#'
+#' Interpretation:
+#' - A signature with a **uniform distribution** has a **lower** L2 norm.
+#' - A **peaked signature** (one dominant context) has a **higher** L2 norm.
+#'
+#' This is an alternative to entropy-based metrics (like Shannon index), and useful
+#' for quickly identifying signatures with strong focal points.
+#'
+#' @param signature A `sigverse` signature or catalogue data.frame.
+#' @param value Character string, either `"fraction"` or `"count"`, indicating which column to compute the norm on.
+#' @param scale Logical. If `TRUE`, divides the norm by the number of elements to enable easier comparison across different signature sizes.
+#'
+#' @return A single numeric value representing the L2 norm.
+#'
+#' @examples
+#' library(sigstash)
+#'
+#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#'
+#' # Compute L2 norm on fractional signature
+#' sig_l2_norm(signatures[["SBS1"]])
+#'
+#' # Compare with a flatter signature
+#' sig_l2_norm(signatures[["SBS3"]])
+#'
+#' # Compute on raw counts (requires a catalogue)
+#' cat1 <- sig_reconstruct(signatures[["SBS3"]], n = 100)
+#' sig_l2_norm(cat1, value = "count")
+#'
+#' @seealso [sig_shannon()], [sig_kl_divergence()], [sig_gini()]
+#' @export
+sig_l2_norm <- function(signature, value = c("fraction", "count"), scale = FALSE){
+
+  # Assertions
+  value <- rlang::arg_match(value)
+  requires_catalogue <- value == "count"
+  sigshared::assert_signature(signature, allow_catalogues = requires_catalogue)
+
+  # Computation
+  vec <- signature[[value]]
+  norm <- compute_l2_norm(vec)
+
+  # Scale by number of channels
+  if(scale) {
+    norm <- norm/length(vec)
+  }
+
+  return(norm)
+}
+
+
+#' Compute the L2 Distance Between Two Signatures or Catalogues
+#'
+#' Calculates the **L2 distance** (Euclidean distance) between two `sigverse` signatures or catalogues.
+#' This metric quantifies how different the distributions are in terms of their numeric values.
+#'
+#' For vectors \( x \) and \( y \), the L2 distance is:
+#' \deqn{\|x - y\|_2 = \sqrt{\sum_i (x_i - y_i)^2}}
+#'
+#' A smaller value indicates more similar signatures, while larger values indicate greater dissimilarity.
+#' This is often used as a simple and fast alternative to cosine similarity or KL divergence.
+#'
+#' @param signature1, signature2 Two `sigverse` signatures or catalogues.
+#'   See [sigshared::example_signature()] or [sigshared::example_catalogue()].
+#'   Must contain matching `channel` values in identical order.
+#' @param value A character string: `"fraction"` for normalised signatures or `"count"` for raw catalogues.
+#' @param scale Logical. If `TRUE`, divides the L2 distance by the number of elements.
+#'   This can help normalise distance values across signatures with different dimensions.
+#'
+#' @return A single numeric value representing the L2 distance.
+#'
+#' @examples
+#' library(sigstash)
+#'
+#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#' s1 <- signatures[["SBS1"]]
+#' s2 <- signatures[["SBS5"]]
+#'
+#' # Compute distance between two fractional signatures
+#' sig_l2_distance(s1, s2)
+#'
+#' # Compare catalogue-level distance (on raw counts)
+#' cat1 <- sig_reconstruct(s1, n = 100)
+#' cat2 <- sig_reconstruct(s2, n = 100)
+#' sig_l2_distance(cat1, cat2, value = "count")
+#'
+#' @export
+sig_l2_distance <- function(signature1, signature2, value = c("fraction", "count"), scale = FALSE){
+
+  # Assertions
+  value <- rlang::arg_match(value)
+  requires_catalogue <- value == "count"
+  sigshared::assert_signature(signature1, allow_catalogues = requires_catalogue)
+  sigshared::assert_signature(signature2, allow_catalogues = requires_catalogue)
+  assertions::assert_identical(signature1[["channel"]], signature2[["channel"]])
+
+  # Computation
+  vec <- signature1[[value]] - signature2[[value]]
+
+  norm <- compute_l2_norm(vec)
+
+  # Scale by number of channels
+  if(scale) {
+    norm <- norm/length(vec)
+  }
+
+  return(norm)
+}
+
+
+compute_l2_norm <- function(vec){
+  compute_norm(vec, 2)
+}
+
+compute_norm <- function(vec, p){
+  (sum(vec^p))^(1/p)
+}
+
 #' Calculate Cosine Matrix Between Two Signatures
 #'
 #' Computes cosine similarity between each pair of signatures in a sigverse signature collection
