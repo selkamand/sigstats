@@ -7,7 +7,10 @@
 
 #' Add Signatures to a Combined Signature Model
 #'
-#' This function takes a signature collection and a model as input and adds selected signatures to a combined signature model. The default output is a data.frame in the 'combined_signature_model' style data.frame format from the Sigverse package.
+#' This function takes a signature collection and a model as input and adds
+#' selected signatures to a combined signature model.
+#' The default output is a data.frame in either sigverse signature format or the 'combined_signature_model'
+#' style depending on `format`.
 #'
 #' @param signatures A sigverse signature collection. See ([sigshared::example_signature_collection()]) for details.
 #' @param model A named numeric vector representing the contribution of each signature to the combined model.
@@ -34,7 +37,6 @@
 #' combined_signatures <- sig_combine(signatures, model)
 #' print(combined_signatures)
 #'
-#' # Visualise using sigvis
 #'
 #' @export
 sig_combine <- function(signatures, model, format = c("signature", "combined"), verbose=FALSE){
@@ -128,6 +130,67 @@ sig_combine_collapse_to_single_signature <- function(signature_combination){
 }
 
 
+
+# Statistics --------------------------------------------------------------
+#' Calculate the Shannon Diversity Index for a Signature
+#'
+#' Computes the Shannon diversity index for a `sigverse` signature. This metric
+#' quantifies the entropy or uncertainty associated with the distribution of mutation
+#' contexts in a signature, based on the relative `fraction` of mutations in each context.
+#'
+#' By default, the function returns the Shannon index as an entropy value. If `exponentiate = TRUE`,
+#' the function returns the **exponentiated Shannon index**, also known as the **effective number
+#' of contexts** (or Hill number of order 1). This makes interpretation more intuitive:
+#'
+#' - A signature concentrated entirely in a single context has an exponentiated index of 1.
+#' - A perfectly uniform signature (equal weight across all 96 SBS contexts) has an exponentiated index of 96.
+#'
+#' In biological terms, the exponentiated Shannon index answers:
+#' _"How many equally frequent mutation contexts would give this level of diversity?"_
+#'
+#' @param signature A `sigverse` signature data.frame. See [sigshared::example_signature()].
+#' @param exponentiate Logical. If `TRUE`, returns the exponentiated Shannon index (effective number of contexts).
+#'
+#' @return A numeric value: either the Shannon index (entropy) or the exponentiated index (effective diversity).
+#'
+#' @examples
+#' library(sigstash)
+#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#' sbs3 <- signatures[["SBS3"]]
+#' sbs48 <- signatures[["SBS48"]]
+#'
+#' # Shannon entropy
+#' sig_shannon(sbs3)
+#'
+#' # Exponentiated Shannon index (effective # of active contexts)
+#' sig_shannon(sbs3, exponentiate = TRUE)
+#'
+#' # Compare with a highly focused signature
+#' sig_shannon(sbs48, exponentiate = TRUE)
+#'
+#' @export
+sig_shannon <- function(signature, exponentiate = FALSE){
+  sigshared::assert_signature(signature)
+  shannon_index <- compute_shannon_index(signature[["fraction"]])
+
+  if(exponentiate){
+   return(exp(shannon_index))
+  }
+
+  return(shannon_index)
+}
+
+compute_shannon_index <- function(probabilities, exponentiate = FALSE){
+  shannon_index <- -sum(probabilities * log(probabilities))
+
+
+  if(exponentiate){
+    return(exp(shannon_index))
+  }
+
+  return(shannon_index)
+}
+
 #' Calculate Cosine Matrix Between Two Signatures
 #'
 #' Computes cosine similarity between each pair of signatures in a sigverse signature collection
@@ -184,6 +247,7 @@ sig_cosine_similarity <- function(signature1,signature2, assume_sensible_input =
     }
 
   }
+
   cosine <- sim_cosine(signature1[['fraction']], signature2[['fraction']])
 
   # If NaN (e.g.if all fractions = 0) because replace with 0
