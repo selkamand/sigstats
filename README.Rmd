@@ -115,3 +115,25 @@ sig_visualise(
   )
 ```
 
+
+### Computing Stats on Signature Collections
+
+```{r}
+
+# Load a signature collection
+signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+
+# Compute common statistics:
+# e.g. Gini coefficient, Exponentiated Shannon Index, KL divergence, L1/L2/L3 Norms)
+stats <- sig_collection_stats(signatures)
+
+# Print Stats
+head(stats)
+
+# Plot kl_divergence_from_uniform against exponentiated shannon index
+plot(
+  x = stats[["kl_divergence_from_uniform"]], 
+  y = stats[["shannon_index_exp_scaled"]]
+)
+```
+

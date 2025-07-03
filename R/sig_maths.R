@@ -6,349 +6,127 @@
 }
 
 
+# Operations --------------------------------------------------------------
 
-# Statistics --------------------------------------------------------------
-#' Calculate the Shannon Diversity Index for a Signature
+
+#' Subtract Signatures/Catalogues
 #'
-#' Computes the Shannon diversity index for a `sigverse` signature. This metric
-#' quantifies the entropy or uncertainty associated with the distribution of mutation
-#' contexts in a signature, based on the relative `fraction` of mutations in each context.
+#' Subtracts signature2 from signature1 and returns result.
 #'
-#' By default, the function returns the Shannon index as an entropy value. If `exponentiate = TRUE`,
-#' the function returns the **exponentiated Shannon index**, also known as the **effective number
-#' of contexts** (or Hill number of order 1). This makes interpretation more intuitive:
+#' @param signature1,signature2 sigverse signature/catalogue data.frames. See [sigshared::example_signature()] or [sigshared::example_catalogue()].
 #'
-#' - A signature concentrated entirely in a single context has an exponentiated index of 1.
-#' - A perfectly uniform signature (equal weight across all 96 SBS contexts) has an exponentiated index of 96.
+#' @return a data.frame representing a sigverse signature.
+#' @export
 #'
-#' In biological terms, the exponentiated Shannon index answers:
-#' _"How many equally frequent mutation contexts would give this level of diversity?"_
+#' @examples
+#' library(sigstash)
 #'
-#' @param signature A `sigverse` signature data.frame. See [sigshared::example_signature()].
-#' @param exponentiate Logical. If `TRUE`, returns the exponentiated Shannon index (effective number of contexts).
+#' # Load a signature collection
+#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
 #'
-#' @return A numeric value: either the Shannon index (entropy) or the exponentiated index (effective diversity).
+#' # Subtract signatures
+#' signatures[['SBS3']] %-% signatures[['SBS4']]
+#'
+#' # Identical approach using full function name
+#' sig_subtract(signatures[['SBS3']], signatures[['SBS4']])
+#'
+sig_subtract <- function(signature1, signature2) {
+  sigshared::assert_signature(signature1, must_sum_to_one = FALSE)
+  sigshared::assert_signature(signature2, must_sum_to_one = FALSE)
+
+  # Ensure matching structure and ordering
+  id1 <- paste(signature1[['type']], signature1[['channel']])
+  id2 <- paste(signature2[['type']], signature2[['channel']])
+  assertions::assert_equal(id1, id2, msg = "To subtract signatures they must have identical type and channel orders.")
+
+  is_catalogue <- "count" %in% colnames(signature1) && "count" %in% colnames(signature2)
+
+  sig_result <- signature1
+
+  if (is_catalogue) {
+    sig_result[["count"]] <- signature1[["count"]] - signature2[["count"]]
+    sig_result[["fraction"]] <- compute_fraction_from_count(sig_result[["count"]])
+  } else {
+    sig_result[["fraction"]] <- signature1[["fraction"]] - signature2[["fraction"]]
+  }
+
+  return(sig_result)
+}
+
+#' @rdname sig_subtract
+#' @export
+`%-%` <- sig_subtract
+
+#' Add Two Catalogues
+#'
+#' Sums two sigverse-style catalogues element-wise by their `count` values.
+#'
+#' This operator provides a concise way to add two catalogues. For summing multiple
+#' catalogues, use [sig_sum()].
+#'
+#' @param catalogue1,catalogue2 Two `sigverse` catalogue data.frames.
+#'  See [sigshared::example_catalogue()].
+#'  Must have the same `type` and `channel` rows in the same order.
+#'
+#' @return A single `sigverse` catalogue data.frame with summed `count`
+#'   and recomputed `fraction` values. See [sigshared::example_catalogue()].
+#'
+#' @seealso [sig_sum()] for summing a collection of catalogues
+#'
+#' @export
 #'
 #' @examples
 #' library(sigstash)
 #' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
-#' sbs3 <- signatures[["SBS3"]]
-#' sbs48 <- signatures[["SBS48"]]
+#' cat1 <- sig_reconstruct(signatures[['SBS3']], n = 100)
+#' cat2 <- sig_reconstruct(signatures[['SBS4']], n = 100)
 #'
-#' # Shannon entropy
-#' sig_shannon(sbs3)
+#' # Add two catalogues
+#' cat_sum <- cat1 %+% cat2
 #'
-#' # Exponentiated Shannon index (effective # of active contexts)
-#' sig_shannon(sbs3, exponentiate = TRUE)
+#' # Add multiple catalogues via repeated %+%
+#' cat3 <- sig_reconstruct(signatures[['SBS5']], n = 100)
+#' total <- cat1 %+% cat2 %+% cat3
 #'
-#' # Compare with a highly focused signature
-#' sig_shannon(sbs48, exponentiate = TRUE)
+#' # Addition two signatures using the full function name
+#' sig_add(cat1, cat2)
 #'
+#' # Alternatively, use sig_sum for a list of catalogues
+#' catalogues <- list(cat1 = cat1, cat2 = cat2, cat3 = cat3)
+#' total2 <- sig_sum(catalogues)
+sig_add <- function(catalogue1, catalogue2){
+  sigshared::assert_catalogue(catalogue1, must_sum_to_one = FALSE)
+  sigshared::assert_catalogue(catalogue2, must_sum_to_one = FALSE)
+
+  # Ensure matching structure and ordering
+  id1 <- paste(catalogue1[['type']], catalogue1[['channel']])
+  id2 <- paste(catalogue2[['type']], catalogue2[['channel']])
+  assertions::assert_equal(id1, id2, msg = "To sum signatures they must have identical type and channel orders.")
+
+  # Catalogue
+  cat_result <- catalogue1
+  cat_result[["count"]] <- catalogue1[["count"]] + catalogue2[["count"]]
+  cat_result[["fraction"]] <- compute_fraction_from_count(cat_result[["count"]])
+
+  return(cat_result)
+}
+
+#' @rdname sig_add
 #' @export
-sig_shannon <- function(signature, exponentiate = FALSE){
-  sigshared::assert_signature(signature)
-  shannon_index <- compute_shannon_index(signature[["fraction"]])
+`%+%` <- sig_add
 
-  if(exponentiate){
-   return(exp(shannon_index))
-  }
-
-  return(shannon_index)
-}
-
-
-
-#' Compute KL Divergence from a Uniform Signature
+#' Sum a Collection Catalogues
 #'
-#' Calculates the Kullback–Leibler (KL) divergence between a mutational signature
-#' and a uniform distribution. KL divergence quantifies how much the observed
-#' mutation context distribution (the signature) deviates from an equal-weight,
-#' flat profile across all contexts.
+#' Sums a list of sigverse catalogues, or two individual catalogues, into a single result.
 #'
-#' A value of 0 indicates a perfectly uniform signature. Higher values indicate
-#' more peaked or biased signatures. KL divergence is commonly used as a measure
-#' of "non-uniformity" or "distinctiveness" of mutation profiles.
+#' This function is useful for aggregating catalogues across samples or replicates.
+#' If you only need to add two catalogues, you may use the [`%+%`] operator instead.
 #'
-#' A small `pseudocount` is added to avoid taking the log of zero when any context
-#' has zero weight.
+#' @param catalogues A named list of `sigverse` catalogue data.frames. See [sigshared::example_catalogue_collection()]
 #'
-#' @param signature A `sigverse` signature data.frame. Must contain a `fraction` column.
-#' @param base The logarithmic base to use (default is natural log, `exp(1)`). Use 2 for bits.
-#' @param pseudocount A small positive number added to each term to prevent log(0).
+#' @return A `sigverse` catalogue data.frame representing the total. See [sigshared::example_catalogue()].
 #'
-#' @return A single numeric value representing the KL divergence from uniform.
-#'
-#' @examples
-#' library(sigstash)
-#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
-#' sbs3 <- signatures[["SBS3"]]
-#'
-#' # Compute KL divergence (how far is SBS3 from flat?)
-#' sig_kl_divergence(sbs3)
-#'
-#' # Use base 2 (bits)
-#' sig_kl_divergence(sbs3, base = 2)
-#'
-#' @seealso [sig_shannon()], [sig_gini()]
-#' @export
-sig_kl_divergence <- function(signature, base = exp(1), pseudocount = 1e-12){
-
-  # Assertions
-  sigshared::assert_signature(signature)
-
-  observed <- signature[["fraction"]]
-  expected <- rep(1,times = length(observed))/length(observed)
-
-  # Computation
-  compute_kl_divergence(
-    p = observed,
-    q = expected,
-    pseudocount = pseudocount,
-    base = base
-  )
-}
-
-
-
-
-#' Compute the Gini Coefficient of a Signature or Catalogue
-#'
-#' Calculates the **Gini coefficient**, a measure of inequality or concentration,
-#' for a `sigverse` signature or catalogue. It ranges from:
-#'
-#' - **0**: perfectly uniform distribution (e.g. all 96 contexts equal)
-#' - **1**: total concentration in a single context
-#'
-#' The Gini coefficient complements entropy-based measures like Shannon index by capturing
-#' the *inequality* of the distribution, rather than uncertainty or diversity.
-#'
-#' This function uses the **biased version** of the Gini coefficient (dividing by _n_), which is:
-#' - The **standard definition** used in descriptive analysis
-#' - More appropriate when the signature is a full population profile rather than a random sample
-#' - Consistent with usage in mutation signature literature
-#'
-#' @param signature A `sigverse` signature or catalogue data.frame.
-#'
-#' @return A numeric value between 0 and 1 representing the Gini coefficient.
-#'
-#' @examples
-#' library(sigstash)
-#' sigs <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
-#'
-#' sig_gini(sigs[["SBS1"]])  # moderately peaked
-#' sig_gini(sigs[["SBS48"]]) # highly peaked, close to 1
-#'
-#'
-#' @seealso [sig_shannon()], [sig_kl_divergence()], [sig_l2_norm()]
-#' @export
-sig_gini <- function(signature){
-  sigshared::assert_signature(signature)
-
-  vec <- signature[["fraction"]]
-  compute_gini(vec)
-}
-
-
-
-#' Compute the L2 Norm of a Signature or Catalogue
-#'
-#' Calculates the **L2 norm** (Euclidean norm) of a `sigverse` signature or catalogue.
-#' This provides a quantitative measure of how concentrated or dispersed the distribution is.
-#'
-#' For a vector \( x \), the L2 norm is defined as:
-#' \deqn{\|x\|_2 = \sqrt{\sum_i x_i^2}}
-#'
-#' Interpretation:
-#' - A signature with a **uniform distribution** has a **lower** L2 norm.
-#' - A **peaked signature** (one dominant context) has a **higher** L2 norm.
-#'
-#' This is an alternative to entropy-based metrics (like Shannon index), and useful
-#' for quickly identifying signatures with strong focal points.
-#'
-#' @param signature A `sigverse` signature or catalogue data.frame.
-#' @param value Character string, either `"fraction"` or `"count"`, indicating which column to compute the norm on.
-#' @param scale Logical. If `TRUE`, divides the norm by the number of elements to enable easier comparison across different signature sizes.
-#'
-#' @return A single numeric value representing the L2 norm.
-#'
-#' @examples
-#' library(sigstash)
-#'
-#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
-#'
-#' # Compute L2 norm on fractional signature
-#' sig_l2_norm(signatures[["SBS1"]])
-#'
-#' # Compare with a flatter signature
-#' sig_l2_norm(signatures[["SBS3"]])
-#'
-#' # Compute on raw counts (requires a catalogue)
-#' cat1 <- sig_reconstruct(signatures[["SBS3"]], n = 100)
-#' sig_l2_norm(cat1, value = "count")
-#'
-#' @seealso [sig_shannon()], [sig_kl_divergence()], [sig_gini()]
-#' @export
-sig_l2_norm <- function(signature, value = c("fraction", "count"), scale = FALSE){
-
-  # Assertions
-  value <- rlang::arg_match(value)
-  requires_catalogue <- value == "count"
-  sigshared::assert_signature(signature, allow_catalogues = requires_catalogue)
-
-  # Computation
-  vec <- signature[[value]]
-  norm <- compute_l2_norm(vec)
-
-  # Scale by number of channels
-  if(scale) {
-    norm <- norm/length(vec)
-  }
-
-  return(norm)
-}
-
-
-#' Compute the L2 Distance Between Two Signatures or Catalogues
-#'
-#' Calculates the **L2 distance** (Euclidean distance) between two `sigverse` signatures or catalogues.
-#' This metric quantifies how different the distributions are in terms of their numeric values.
-#'
-#' For vectors \( x \) and \( y \), the L2 distance is:
-#' \deqn{\|x - y\|_2 = \sqrt{\sum_i (x_i - y_i)^2}}
-#'
-#' A smaller value indicates more similar signatures, while larger values indicate greater dissimilarity.
-#' This is often used as a simple and fast alternative to cosine similarity or KL divergence.
-#'
-#' @param signature1,signature2 Two `sigverse` signatures or catalogues.
-#'   See [sigshared::example_signature()] or [sigshared::example_catalogue()].
-#'   Must contain matching `channel` values in identical order.
-#' @param value A character string: `"fraction"` for normalised signatures or `"count"` for raw catalogues.
-#' @param scale Logical. If `TRUE`, divides the L2 distance by the number of elements.
-#'   This can help normalise distance values across signatures with different dimensions.
-#'
-#' @return A single numeric value representing the L2 distance.
-#'
-#' @examples
-#' library(sigstash)
-#'
-#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
-#' s1 <- signatures[["SBS1"]]
-#' s2 <- signatures[["SBS5"]]
-#'
-#' # Compute distance between two fractional signatures
-#' sig_l2_distance(s1, s2)
-#'
-#' # Compare catalogue-level distance (on raw counts)
-#' cat1 <- sig_reconstruct(s1, n = 100)
-#' cat2 <- sig_reconstruct(s2, n = 100)
-#' sig_l2_distance(cat1, cat2, value = "count")
-#'
-#' @export
-sig_l2_distance <- function(signature1, signature2, value = c("fraction", "count"), scale = FALSE){
-  sig_lp_distance(signature1 = signature1, signature2 = signature2, p = 2, value = value, scale = scale)
-}
-
-#' Compute L<sub>p</sub> Distance Between Two Signatures
-#'
-#' Calculates the L<sub>p</sub> distance (also known as the Minkowski distance)
-#' between two `sigverse` signatures or catalogues. This generalizes various distance
-#' metrics depending on the choice of `p`:
-#'
-#' - `p = 1`: Manhattan distance (sum of absolute differences)
-#' - `p = 2`: Euclidean (L2) distance
-#' - `p = ∞`: Chebyshev distance (maximum absolute difference)
-#'
-#' This function is useful for flexible distance computations when comparing
-#' mutational signatures or catalogues. All channels must match and be in the same order.
-#'
-#' By default, distances are computed using raw values. If `scale = TRUE`, the distance is
-#' divided by the number of mutation contexts to allow comparisons across different signature types
-#' (e.g. SBS vs DBS).
-#'
-#' @param signature1, signature2 Two `sigverse` signature or catalogue data.frames.
-#' @param p A numeric value ≥ 1 indicating the order of the L<sub>p</sub> norm to compute.
-#' @param value Either `"fraction"` (default) or `"count"` — determines which column is used for comparison.
-#' @param scale Logical. If `TRUE`, distance is divided by the number of contexts (i.e. channels).
-#'
-#' @return A non-negative numeric value representing the L<sub>p</sub> distance between the two profiles.
-#'
-#' @examples
-#' library(sigstash)
-#' sigs <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
-#'
-#' sig_lp_distance(sigs[["SBS1"]], sigs[["SBS5"]], p = 1)  # L1 (Manhattan)
-#' sig_lp_distance(sigs[["SBS1"]], sigs[["SBS5"]], p = 2)  # L2 (Euclidean)
-#' sig_lp_distance(sigs[["SBS1"]], sigs[["SBS5"]], p = 1, scale = TRUE)
-#'
-#' @seealso [sig_l2_distance()], [sig_cosine_similarity()]
-#' @export
-sig_lp_distance <- function(signature1, signature2, p, value = c("fraction", "count"), scale = FALSE){
-
-  # Assertions
-  value <- rlang::arg_match(value)
-  requires_catalogue <- value == "count"
-  sigshared::assert_signature(signature1, allow_catalogues = requires_catalogue)
-  sigshared::assert_signature(signature2, allow_catalogues = requires_catalogue)
-  assertions::assert_identical(signature1[["channel"]], signature2[["channel"]])
-
-  # Computation
-  vec <- signature1[[value]] - signature2[[value]]
-
-  norm <- compute_norm(vec, p = p)
-
-  # Scale by number of channels
-  if(scale) {
-    norm <- norm/length(vec)
-  }
-
-  return(norm)
-}
-
-
-compute_shannon_index <- function(probabilities, exponentiate = FALSE){
-  shannon_index <- -sum(probabilities * log(probabilities))
-
-
-  if(exponentiate){
-    return(exp(shannon_index))
-  }
-
-  return(shannon_index)
-}
-
-compute_kl_divergence <- function(p, q, pseudocount = 1e-12, base = exp(1)){
-  if(all(p == 0)) return(0)
-  sum(p*log(p/(q+pseudocount), base = base), na.rm = TRUE)
-}
-
-compute_gini <- function(x) {
-  x <- sort(x)
-  n <- length(x)
-  if (all(x == 0)) return(0)  # define Gini = 0 when all entries are 0
-  G <- sum((2 * seq_len(n) - n - 1) * x)
-  G / (n * sum(x))
-}
-
-compute_l2_norm <- function(vec){
-  compute_norm(vec, 2)
-}
-
-compute_norm <- function(vec, p){
-  (sum(vec^p))^(1/p)
-}
-
-
-
-
-#' Calculate Cosine Matrix Between Two Signatures
-#'
-#' Computes cosine similarity between each pair of signatures in a sigverse signature collection
-#'
-#' @param signature1,signature2 sigverse signature data.frames. See [sigshared::example_signature()].
-#' @param assume_sensible_input A logical flag indicating whether to skip validation checks for the input signatures.
-#' Enabling this option can significantly speed up the cosine similarity calculation by assuming that both inputs are valid
-#' signature objects and that their channels are already sorted. This option should only be used when performance is critical and these assumptions can be verified upstream.
-#' @return a number between 0 and 1 representing cosine similarity
+#' @seealso [`%+%`] for summing two catalogues
 #'
 #' @export
 #'
@@ -358,60 +136,29 @@ compute_norm <- function(vec, p){
 #' # Load a signature collection
 #' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
 #'
-#' # Compute cosine similarity between two signatures
-#' sig_cosine_similarity(signatures[["SBS1"]], signatures[["SBS2"]])
+#' # Reconstruct catalogues for two pure samples (each with 100 mutations)
+#' catalogue1 <- sig_reconstruct(signatures[['SBS3']], n = 100)
+#' catalogue2 <- sig_reconstruct(signatures[['SBS4']], n = 100)
 #'
-sig_cosine_similarity <- function(signature1,signature2, assume_sensible_input = FALSE){
+#' # Sum catalogue1 and  catalogue2
+#' catalogue_sum <- catalogue1 %+% catalogue2
+#'
+#' # Sum a collection
+#' collection <- list(cat1 = catalogue1, cat2 = catalogue2)
+#' collection <- sig_sum(collection)
+sig_sum <- function(catalogues){
+  sigshared::assert_catalogue_collection(catalogues)
+  mx <- sigshared::sig_collection_reformat_list_to_matrix(catalogues, values = "count")
+  sums <- rowSums(mx)
+  channels <- rownames(mx)
+  types <- attr(mx, "types")
 
-  if(!assume_sensible_input){
-    sigshared::assert_signature(signature1, must_sum_to_one = FALSE)
-    sigshared::assert_signature(signature2, must_sum_to_one = FALSE)
-
-    # Ensure signatures are sorted the same way 'type channel' match 1:1 (including order)
-    sig1_type_channel_id = paste0('type:', signature1[['type']],', ', 'channel:',signature1[['channel']])
-    sig2_type_channel_id = paste0('type:', signature2[['type']],', ', 'channel:',signature2[['channel']])
-    identical = identical(sig1_type_channel_id,sig2_type_channel_id)
-
-    if(!identical){
-      # Types + Channels combinations are either not identical, or sorted differently
-      unique_to_sig1 <- setdiff(sig1_type_channel_id, sig2_type_channel_id)
-      unique_to_sig2 <- setdiff(sig2_type_channel_id, sig1_type_channel_id)
-
-      # Check if they're just sorted differently
-      set_equivalent <- setequal(sig1_type_channel_id, sig2_type_channel_id) & length(sig1_type_channel_id) == length(sig2_type_channel_id)
-
-      # If signatures have different channels/types throw an error
-      assertions::assert(set_equivalent, msg = c(
-        "Cannot calculate cosine similarity between signatures/catalogues with different types or channels:",
-        c(
-          "*"="Unique Types/Channels in Signature1: [{unique_to_sig1}]",
-          "*"="Unique Types/Channels in Signature2: [{unique_to_sig2}]"
-        )
-
-      ))
-
-      # If signatures are just sorted differently, fix the sorting and continue
-      new_order_for_sig2 <- match(sig1_type_channel_id, sig2_type_channel_id)
-      signature2 <- signature2[new_order_for_sig2,]
-    }
-
-  }
-
-  cosine <- sim_cosine(signature1[['fraction']], signature2[['fraction']])
-
-  # If NaN (e.g.if all fractions = 0) because replace with 0
-  if(is.nan(cosine)) cosine <- 0
-
-  return(cosine)
+  cat_result <- catalogues[[1]]
+  cat_result[["count"]] <- sums
+  cat_result[["fraction"]] <- compute_fraction_from_count(cat_result[["count"]])
+  return(cat_result)
 }
 
-
-sim_cosine <- function(x, y){
-  as.numeric(lsa::cosine(x, y))
-}
-
-
-# Operations --------------------------------------------------------------
 
 
 #' Add Signatures to a Combined Signature Model
@@ -587,156 +334,5 @@ sig_reconstruct <- function(signature, n){
   signature[['fraction']][is.na(signature[['fraction']])] <- 0
 
   return(signature)
-}
-
-
-#' Subtract Signatures/Catalogues
-#'
-#' Subtracts signature2 from signature1 and returns result.
-#'
-#' @param signature1,signature2 sigverse signature/catalogue data.frames. See [sigshared::example_signature()] or [sigshared::example_catalogue()].
-#'
-#' @return a data.frame representing a sigverse signature.
-#' @export
-#'
-#' @examples
-#' library(sigstash)
-#'
-#' # Load a signature collection
-#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
-#'
-#' # Subtract signatures
-#' signatures[['SBS3']] %-% signatures[['SBS4']]
-#'
-#' # Identical approach using full function name
-#' sig_subtract(signatures[['SBS3']], signatures[['SBS4']])
-#'
-sig_subtract <- function(signature1, signature2) {
-  sigshared::assert_signature(signature1, must_sum_to_one = FALSE)
-  sigshared::assert_signature(signature2, must_sum_to_one = FALSE)
-
-  # Ensure matching structure and ordering
-  id1 <- paste(signature1[['type']], signature1[['channel']])
-  id2 <- paste(signature2[['type']], signature2[['channel']])
-  assertions::assert_equal(id1, id2, msg = "To subtract signatures they must have identical type and channel orders.")
-
-  is_catalogue <- "count" %in% colnames(signature1) && "count" %in% colnames(signature2)
-
-  sig_result <- signature1
-
-  if (is_catalogue) {
-    sig_result[["count"]] <- signature1[["count"]] - signature2[["count"]]
-    sig_result[["fraction"]] <- compute_fraction_from_count(sig_result[["count"]])
-  } else {
-    sig_result[["fraction"]] <- signature1[["fraction"]] - signature2[["fraction"]]
-  }
-
-  return(sig_result)
-}
-
-#' @rdname sig_subtract
-#' @export
-`%-%` <- sig_subtract
-
-#' Add Two Catalogues
-#'
-#' Sums two sigverse-style catalogues element-wise by their `count` values.
-#'
-#' This operator provides a concise way to add two catalogues. For summing multiple
-#' catalogues, use [sig_sum()].
-#'
-#' @param catalogue1,catalogue2 Two `sigverse` catalogue data.frames.
-#'  See [sigshared::example_catalogue()].
-#'  Must have the same `type` and `channel` rows in the same order.
-#'
-#' @return A single `sigverse` catalogue data.frame with summed `count`
-#'   and recomputed `fraction` values. See [sigshared::example_catalogue()].
-#'
-#' @seealso [sig_sum()] for summing a collection of catalogues
-#'
-#' @export
-#'
-#' @examples
-#' library(sigstash)
-#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
-#' cat1 <- sig_reconstruct(signatures[['SBS3']], n = 100)
-#' cat2 <- sig_reconstruct(signatures[['SBS4']], n = 100)
-#'
-#' # Add two catalogues
-#' cat_sum <- cat1 %+% cat2
-#'
-#' # Add multiple catalogues via repeated %+%
-#' cat3 <- sig_reconstruct(signatures[['SBS5']], n = 100)
-#' total <- cat1 %+% cat2 %+% cat3
-#'
-#' # Addition two signatures using the full function name
-#' sig_add(cat1, cat2)
-#'
-#' # Alternatively, use sig_sum for a list of catalogues
-#' catalogues <- list(cat1 = cat1, cat2 = cat2, cat3 = cat3)
-#' total2 <- sig_sum(catalogues)
-sig_add <- function(catalogue1, catalogue2){
-  sigshared::assert_catalogue(catalogue1, must_sum_to_one = FALSE)
-  sigshared::assert_catalogue(catalogue2, must_sum_to_one = FALSE)
-
-  # Ensure matching structure and ordering
-  id1 <- paste(catalogue1[['type']], catalogue1[['channel']])
-  id2 <- paste(catalogue2[['type']], catalogue2[['channel']])
-  assertions::assert_equal(id1, id2, msg = "To sum signatures they must have identical type and channel orders.")
-
-  # Catalogue
-  cat_result <- catalogue1
-  cat_result[["count"]] <- catalogue1[["count"]] + catalogue2[["count"]]
-  cat_result[["fraction"]] <- compute_fraction_from_count(cat_result[["count"]])
-
-  return(cat_result)
-}
-
-#' @rdname sig_add
-#' @export
-`%+%` <- sig_add
-
-#' Sum a Collection Catalogues
-#'
-#' Sums a list of sigverse catalogues, or two individual catalogues, into a single result.
-#'
-#' This function is useful for aggregating catalogues across samples or replicates.
-#' If you only need to add two catalogues, you may use the [`%+%`] operator instead.
-#'
-#' @param catalogues A named list of `sigverse` catalogue data.frames. See [sigshared::example_catalogue_collection()]
-#'
-#' @return A `sigverse` catalogue data.frame representing the total. See [sigshared::example_catalogue()].
-#'
-#' @seealso [`%+%`] for summing two catalogues
-#'
-#' @export
-#'
-#' @examples
-#' library(sigstash)
-#'
-#' # Load a signature collection
-#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
-#'
-#' # Reconstruct catalogues for two pure samples (each with 100 mutations)
-#' catalogue1 <- sig_reconstruct(signatures[['SBS3']], n = 100)
-#' catalogue2 <- sig_reconstruct(signatures[['SBS4']], n = 100)
-#'
-#' # Sum catalogue1 and  catalogue2
-#' catalogue_sum <- catalogue1 %+% catalogue2
-#'
-#' # Sum a collection
-#' collection <- list(cat1 = catalogue1, cat2 = catalogue2)
-#' collection <- sig_sum(collection)
-sig_sum <- function(catalogues){
-  sigshared::assert_catalogue_collection(catalogues)
-  mx <- sigshared::sig_collection_reformat_list_to_matrix(catalogues, values = "count")
-  sums <- rowSums(mx)
-  channels <- rownames(mx)
-  types <- attr(mx, "types")
-
-  cat_result <- catalogues[[1]]
-  cat_result[["count"]] <- sums
-  cat_result[["fraction"]] <- compute_fraction_from_count(cat_result[["count"]])
-  return(cat_result)
 }
 

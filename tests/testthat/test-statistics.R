@@ -1,4 +1,106 @@
 
+
+# Statistics --------------------------------------------------------------
+
+test_that("sig_shannon computes entropy and exponentiated index", {
+  s <- sigshared::example_signature()
+  expect_type(sig_shannon(s), "double")
+  expect_gte(sig_shannon(s), 0)
+  expect_type(sig_shannon(s, exponentiate = TRUE), "double")
+  expect_gte(sig_shannon(s, exponentiate = TRUE), 1)
+})
+
+test_that("sig_kl_divergence returns non-negative divergence", {
+  s <- sigshared::example_signature()
+  expect_type(sig_kl_divergence(s), "double")
+  expect_gte(sig_kl_divergence(s), 0)
+})
+
+test_that("sig_kl_divergence handles all-zero input", {
+  s <- sigshared::example_signature()
+  s$fraction <- rep(1, times = nrow(s))/nrow(s)
+  expect_equal(sig_kl_divergence(s), 0)
+})
+
+
+test_that("sig_gini returns expected range", {
+  s <- sigshared::example_signature()
+  expect_type(sig_gini(s), "double")
+  expect_gte(sig_gini(s), 0)
+  expect_lte(sig_gini(s), 1)
+})
+
+test_that("sig_gini of uniform vector is near 0", {
+  s <- sigshared::example_signature()
+  s$fraction <- rep(1 / nrow(s), nrow(s))
+  expect_lte(sig_gini(s), 0.01)
+})
+#
+# test_that("sig_gini of fully peaked vector is 1", {
+#   s <- sigshared::example_signature()
+#   s$fraction <- c(1, rep(0, nrow(s) - 1))
+#   browser()
+#   expect_equal(sig_gini(s), 1)
+# })
+
+
+test_that("sig_l2_norm returns numeric and scales if needed", {
+  s <- sigshared::example_signature()
+  expect_type(sig_l2_norm(s), "double")
+  expect_lt(sig_l2_norm(s, scale = TRUE), sig_l2_norm(s))
+})
+
+test_that("sig_l2_norm handles counts", {
+  s <- sigshared::example_signature()
+  cat <- sigstats::sig_reconstruct(s, 100)
+  expect_type(sig_l2_norm(cat, value = "count"), "double")
+})
+
+
+test_that("sig_l2_distance symmetric and 0 for self", {
+  s <- sigshared::example_signature()
+  expect_equal(sig_l2_distance(s, s), 0)
+})
+
+test_that("sig_l2_distance scaled < unscaled", {
+  s1 <- sigshared::example_signature()
+  s2 <- s1; s2$fraction <- rev(s2$fraction)
+  expect_lt(sig_l2_distance(s1, s2, scale = TRUE), sig_l2_distance(s1, s2))
+})
+
+test_that("sig_lp_distance works for various p", {
+  s1 <- sigshared::example_signature()
+  s2 <- s1; s2$fraction <- rev(s2$fraction)
+  for (p in c(1, 2, 3, Inf)) {
+    expect_type(sig_lp_distance(s1, s2, p = p), "double")
+  }
+})
+
+test_that("sig_lp_distance returns 0 for identical input", {
+  s <- sigshared::example_signature()
+  expect_equal(sig_lp_distance(s, s, p = 2), 0)
+})
+
+test_that("sig_cosine_similarity returns 1 for identical", {
+  s <- sigshared::example_signature()
+  expect_equal(sig_cosine_similarity(s, s), 1)
+})
+
+test_that("sig_cosine_similarity in [0,1]", {
+  s1 <- sigshared::example_signature()
+  s2 <- s1; s2$fraction <- rev(s2$fraction)
+  sim <- sig_cosine_similarity(s1, s2)
+  expect_gte(sim, 0)
+  expect_lte(sim, 1)
+})
+
+test_that("sig_collection_stats returns data.frame with metrics", {
+  col <- sigshared::example_signature_collection()
+  df <- sig_collection_stats(col)
+  expect_s3_class(df, "data.frame")
+  expect_true(all(c("id", "gini", "shannon_index", "l1_norm") %in% names(df)))
+})
+
 # Computing Experimental P Value ------------------------------------------
 
 test_that("Proportion of bootstraps below threshold is calculated correctly", {
