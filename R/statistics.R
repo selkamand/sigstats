@@ -39,7 +39,7 @@
 #'
 #' @export
 sig_shannon <- function(signature, exponentiate = FALSE){
-  sigshared::assert_signature(signature)
+  sigshared::assert_signature(signature, must_sum_to_one = FALSE)
   shannon_index <- compute_shannon_index(signature[["fraction"]])
 
   if(exponentiate){
@@ -458,6 +458,11 @@ sig_collection_stats <- function(signatures){
 
 # Underlying Computations -------------------------------------------------
 compute_shannon_index <- function(probabilities, exponentiate = FALSE){
+
+  # Drop zeros and avoid log(0)
+  probabilities <- probabilities[probabilities > 0]
+
+  # Compute Shannon
   shannon_index <- -sum(probabilities * log(probabilities))
 
 

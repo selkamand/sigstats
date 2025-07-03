@@ -10,6 +10,71 @@ test_that("sig_shannon computes entropy and exponentiated index", {
   expect_gte(sig_shannon(s, exponentiate = TRUE), 1)
 })
 
+test_that("sig_shannon handles all-zero vector without error", {
+  s <- sigshared::example_signature()
+  s$fraction <- rep(0, nrow(s))  # All zeros
+
+  expect_silent({
+    result <- sig_shannon(s)
+    expect_equal(result, 0)
+  })
+
+  expect_silent({
+    result_exp <- sig_shannon(s, exponentiate = TRUE)
+    expect_equal(result_exp, 1)  # exp(0) == 1
+  })
+})
+
+test_that("sig_shannon returns 0 for fully peaked distribution", {
+  s <- sigshared::example_signature()
+  s$fraction <- c(1, rep(0, nrow(s) - 1))
+  expect_equal(sig_shannon(s), 0)
+  expect_equal(sig_shannon(s, exponentiate = TRUE), 1)
+})
+
+test_that("sig_shannon returns log(K) for uniform distribution", {
+  s <- sigshared::example_signature()
+  K <- nrow(s)
+  s$fraction <- rep(1 / K, K)
+  expected_entropy <- log(K)
+  expect_equal(sig_shannon(s), expected_entropy, tolerance = 1e-8)
+  expect_equal(sig_shannon(s, exponentiate = TRUE), K)
+})
+
+test_that("sig_shannon handles small 2-element distribution correctly", {
+  s <- data.frame(
+    channel = c("A", "B"),
+    type = c("SBS", "SBS"),
+    fraction = c(0.25, 0.75)
+  )
+
+  expected_entropy <- -0.25 * log(0.25) - 0.75 * log(0.75)
+  expect_equal(sig_shannon(s), expected_entropy, tolerance = 1e-8)
+  expect_equal(sig_shannon(s, exponentiate = TRUE), exp(expected_entropy), tolerance = 1e-8)
+})
+
+test_that("sig_shannon is invariant to zero-only padding", {
+  s1 <- data.frame(
+    channel = c("A", "B", "C"),
+    type = c("SBS", "SBS", "SBS"),
+    fraction = c(0.5, 0.5, 0)
+  )
+
+  s2 <- data.frame(
+    channel = c("A", "B"),
+    type = c("SBS", "SBS"),
+    fraction = c(0.5, 0.5)
+  )
+
+  expect_equal(sig_shannon(s1), sig_shannon(s2), tolerance = 1e-8)
+  expect_equal(sig_shannon(s1, exponentiate = TRUE), sig_shannon(s2, exponentiate = TRUE), tolerance = 1e-8)
+})
+
+
+# KL Divergence -----------------------------------------------------------
+
+
+
 test_that("sig_kl_divergence returns non-negative divergence", {
   s <- sigshared::example_signature()
   expect_type(sig_kl_divergence(s), "double")
