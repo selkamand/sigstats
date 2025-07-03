@@ -246,11 +246,8 @@ sig_l2_distance <- function(signature1, signature2, value = c("fraction", "count
 #'
 #' Calculates the L<sub>p</sub> distance (also known as the Minkowski distance)
 #' between two `sigverse` signatures or catalogues. This generalizes various distance
-#' metrics depending on the choice of `p`:
+#' metrics depending on the choice of `p`.
 #'
-#' - `p = 1`: Manhattan distance (sum of absolute differences)
-#' - `p = 2`: Euclidean (L2) distance
-#' - `p = ∞`: Chebyshev distance (maximum absolute difference)
 #'
 #' This function is useful for flexible distance computations when comparing
 #' mutational signatures or catalogues. All channels must match and be in the same order.
@@ -260,7 +257,11 @@ sig_l2_distance <- function(signature1, signature2, value = c("fraction", "count
 #' (e.g. SBS vs DBS).
 #'
 #' @param signature1, signature2 Two `sigverse` signature or catalogue data.frames.
-#' @param p A numeric value ≥ 1 indicating the order of the L<sub>p</sub> norm to compute.
+#' @param p A numeric value ≥ 0 indicating the order of the L<sub>p</sub> norm to compute.
+#'   - `p = 0`: counts the number of non-zero entries (not a true norm; useful for sparsity).
+#'   - `p = 1`: Manhattan distance (sum of absolute differences).
+#'   - `p = 2`: Euclidean (L2) distance.
+#'   - `p = ∞`: Chebyshev distance (maximum absolute difference).
 #' @param value Either `"fraction"` (default) or `"count"` — determines which column is used for comparison.
 #' @param scale Logical. If `TRUE`, distance is divided by the number of contexts (i.e. channels).
 #'
@@ -381,12 +382,15 @@ sig_cosine_similarity <- function(signature1,signature2, assume_sensible_input =
 #' - **`l1_norm`**: Total absolute weight (larger = more mass in fewer contexts).
 #' - **`l2_norm`**: Magnitude of the vector; emphasizes focal peaks.
 #' - **`l3_norm`**: Amplifies concentration even more than L2.
-#' - **`l0_norm`**: Number of non-zero contexts (i.e., how many are active at all).
+#' - **`l0_norm`**: Number of non-zero contexts (also known as the L0 "norm").
+#'     This is not a true mathematical norm but is commonly used as a measure of **sparsity** —
+#'     how many mutation channels contribute at all. A value of 0 means the signature is completely empty;
+#'     a higher value indicates more active contexts.
 #' - **`*_scaled` variants**: Norms divided by number of contexts to allow cross-signature comparisons.
 #' - **`max_channel_fraction`**: Highest single-context weight (equivalent to the infinity norm).
 #'
-#' This function is optimised for speed and returns a data.frame with one row per signature
-#' and columns for each computed metric.
+#' This function is optimised for speed (is faster than computing each norm independently for each signature)
+#' and returns a data.frame with one row per signature and columns for each computed metric.
 #'
 #' @param signatures A `sigverse` signature collection (named list of signature data.frames).
 #'

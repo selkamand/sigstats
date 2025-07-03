@@ -15,7 +15,13 @@ sig_lp_distance(
 \arguments{
 \item{signature1, }{signature2 Two \code{sigverse} signature or catalogue data.frames.}
 
-\item{p}{A numeric value ≥ 1 indicating the order of the L\if{html}{\out{<sub>}}p\if{html}{\out{</sub>}} norm to compute.}
+\item{p}{A numeric value ≥ 0 indicating the order of the L\if{html}{\out{<sub>}}p\if{html}{\out{</sub>}} norm to compute.
+\itemize{
+\item \code{p = 0}: counts the number of non-zero entries (not a true norm; useful for sparsity).
+\item \code{p = 1}: Manhattan distance (sum of absolute differences).
+\item \code{p = 2}: Euclidean (L2) distance.
+\item \verb{p = ∞}: Chebyshev distance (maximum absolute difference).
+}}
 
 \item{value}{Either \code{"fraction"} (default) or \code{"count"} — determines which column is used for comparison.}
 
@@ -27,15 +33,9 @@ A non-negative numeric value representing the L\if{html}{\out{<sub>}}p\if{html}{
 \description{
 Calculates the L\if{html}{\out{<sub>}}p\if{html}{\out{</sub>}} distance (also known as the Minkowski distance)
 between two \code{sigverse} signatures or catalogues. This generalizes various distance
-metrics depending on the choice of \code{p}:
+metrics depending on the choice of \code{p}.
 }
 \details{
-\itemize{
-\item \code{p = 1}: Manhattan distance (sum of absolute differences)
-\item \code{p = 2}: Euclidean (L2) distance
-\item \verb{p = ∞}: Chebyshev distance (maximum absolute difference)
-}
-
 This function is useful for flexible distance computations when comparing
 mutational signatures or catalogues. All channels must match and be in the same order.
 

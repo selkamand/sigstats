@@ -88,6 +88,10 @@ test_that("sig_kl_divergence handles all-zero input", {
 })
 
 
+
+# Gini --------------------------------------------------------------------
+
+
 test_that("sig_gini returns expected range", {
   s <- sigshared::example_signature()
   expect_type(sig_gini(s), "double")
@@ -108,6 +112,7 @@ test_that("sig_gini of uniform vector is near 0", {
 #   expect_equal(sig_gini(s), 1)
 # })
 
+# L2 norm --------------------------------------------------------------------
 
 test_that("sig_l2_norm returns numeric and scales if needed", {
   s <- sigshared::example_signature()
@@ -133,6 +138,7 @@ test_that("sig_l2_distance scaled < unscaled", {
   expect_lt(sig_l2_distance(s1, s2, scale = TRUE), sig_l2_distance(s1, s2))
 })
 
+# Lp distance --------------------------------------------------------------------
 test_that("sig_lp_distance works for various p", {
   s1 <- sigshared::example_signature()
   s2 <- s1; s2$fraction <- rev(s2$fraction)
@@ -146,6 +152,7 @@ test_that("sig_lp_distance returns 0 for identical input", {
   expect_equal(sig_lp_distance(s, s, p = 2), 0)
 })
 
+# Cosine distance --------------------------------------------------------------------
 test_that("sig_cosine_similarity returns 1 for identical", {
   s <- sigshared::example_signature()
   expect_equal(sig_cosine_similarity(s, s), 1)
@@ -159,12 +166,26 @@ test_that("sig_cosine_similarity in [0,1]", {
   expect_lte(sim, 1)
 })
 
+
+# Collection Stats --------------------------------------------------------
 test_that("sig_collection_stats returns data.frame with metrics", {
   col <- sigshared::example_signature_collection()
   df <- sig_collection_stats(col)
   expect_s3_class(df, "data.frame")
   expect_true(all(c("id", "gini", "shannon_index", "l1_norm") %in% names(df)))
 })
+
+test_that("sig_collection_stats l0_norm matches expected non-zero count", {
+  sigs <- sigshared::example_signature_collection()
+  stats <- sig_collection_stats(sigs)
+
+  for (id in stats$id) {
+    sig <- sigs[[id]]
+    expected_l0 <- sum(sig$fraction != 0)
+    expect_equal(stats[stats$id == id, "l0_norm"], expected_l0)
+  }
+})
+
 
 # Computing Experimental P Value ------------------------------------------
 

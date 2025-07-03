@@ -29,13 +29,16 @@ For each signature, the following metrics are reported:
 \item \strong{\code{l1_norm}}: Total absolute weight (larger = more mass in fewer contexts).
 \item \strong{\code{l2_norm}}: Magnitude of the vector; emphasizes focal peaks.
 \item \strong{\code{l3_norm}}: Amplifies concentration even more than L2.
-\item \strong{\code{l0_norm}}: Number of non-zero contexts (i.e., how many are active at all).
+\item \strong{\code{l0_norm}}: Number of non-zero contexts (also known as the L0 "norm").
+This is not a true mathematical norm but is commonly used as a measure of \strong{sparsity} —
+how many mutation channels contribute at all. A value of 0 means the signature is completely empty;
+a higher value indicates more active contexts.
 \item \strong{\verb{*_scaled} variants}: Norms divided by number of contexts to allow cross-signature comparisons.
 \item \strong{\code{max_channel_fraction}}: Highest single-context weight (equivalent to the infinity norm).
 }
 
-This function is optimised for speed and returns a data.frame with one row per signature
-and columns for each computed metric.
+This function is optimised for speed (is faster than computing each norm independently for each signature)
+and returns a data.frame with one row per signature and columns for each computed metric.
 }
 \examples{
 library(sigstash)
