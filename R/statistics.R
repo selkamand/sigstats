@@ -256,7 +256,7 @@ sig_l2_distance <- function(signature1, signature2, value = c("fraction", "count
 #' divided by the number of mutation contexts to allow comparisons across different signature types
 #' (e.g. SBS vs DBS).
 #'
-#' @param signature1, signature2 Two `sigverse` signature or catalogue data.frames.
+#' @param signature1,signature2 Two `sigverse` signature or catalogue data.frames.
 #' @param p A numeric value ≥ 0 indicating the order of the L<sub>p</sub> norm to compute.
 #'   - `p = 0`: counts the number of non-zero entries (not a true norm; useful for sparsity).
 #'   - `p = 1`: Manhattan distance (sum of absolute differences).
@@ -465,7 +465,7 @@ sig_collection_stats <- function(signatures){
 #'
 #' Calculates a specified pairwise metric for all unique pairs of signatures in a `sigverse` collection.
 #' Supported metrics are:
-#' - **`cosine_similarity`**: returns values in [0, 1], where 1 indicates identical signatures
+#' - **`cosine_similarity`**: returns values in \[0, 1\], where 1 indicates identical signatures
 #' - **`L2`**: Euclidean distance between signatures
 #' - **`L1`**: Manhattan distance between signatures
 #'

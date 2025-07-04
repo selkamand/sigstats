@@ -37,7 +37,7 @@ corresponding to signature IDs.}
 Calculates a specified pairwise metric for all unique pairs of signatures in a \code{sigverse} collection.
 Supported metrics are:
 \itemize{
-\item \strong{\code{cosine_similarity}}: returns values in \link{0, 1}, where 1 indicates identical signatures
+\item \strong{\code{cosine_similarity}}: returns values in [0, 1], where 1 indicates identical signatures
 \item \strong{\code{L2}}: Euclidean distance between signatures
 \item \strong{\code{L1}}: Manhattan distance between signatures
 }

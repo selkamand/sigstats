@@ -13,7 +13,7 @@ sig_lp_distance(
 )
 }
 \arguments{
-\item{signature1, }{signature2 Two \code{sigverse} signature or catalogue data.frames.}
+\item{signature1, signature2}{Two \code{sigverse} signature or catalogue data.frames.}
 
 \item{p}{A numeric value ≥ 0 indicating the order of the L\if{html}{\out{<sub>}}p\if{html}{\out{</sub>}} norm to compute.
 \itemize{
