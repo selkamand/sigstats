@@ -22,7 +22,8 @@ Imports:
     lsa,
     rlang,
     sigshared (>= 0.0.0.9000),
-    stats
+    stats,
+    utils
 Remotes: 
     selkamand/sigshared,
     selkamand/sigstash,

@@ -534,7 +534,7 @@ sig_collection_pairwise_stats <- function(signatures,
 
   # Create pairwise combinations
   samples = colnames(signatures)
-  ls_combinations = combn(x = samples, m = 2, simplify = FALSE)
+  ls_combinations = utils::combn(x = samples, m = 2, simplify = FALSE)
 
   metric_function <-
     if(metric == "cosine_similarity")
