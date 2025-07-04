@@ -287,16 +287,18 @@ sig_lp_distance <- function(signature1, signature2, p, value = c("fraction", "co
   assertions::assert_identical(signature1[["channel"]], signature2[["channel"]])
 
   # Computation
-  vec <- signature1[[value]] - signature2[[value]]
-
-  norm <- compute_norm(vec, p = p)
+  distance <- compute_lp_distance(
+    signature1[[value]],
+    signature2[[value]],
+    p = p
+  )
 
   # Scale by number of channels
   if(scale) {
-    norm <- norm/length(vec)
+    distance <- distance/nrow(signature1)
   }
 
-  return(norm)
+  return(distance)
 }
 
 #' Calculate Cosine Matrix Between Two Signatures
@@ -459,6 +461,127 @@ sig_collection_stats <- function(signatures){
   return(df_metrics)
 }
 
+#' Compute Pairwise Similarity or Distance Metrics Between Signatures
+#'
+#' Calculates a specified pairwise metric for all unique pairs of signatures in a `sigverse` collection.
+#' Supported metrics are:
+#' - **`cosine_similarity`**: returns values in [0, 1], where 1 indicates identical signatures
+#' - **`L2`**: Euclidean distance between signatures
+#' - **`L1`**: Manhattan distance between signatures
+#'
+#' The input may be supplied either as:
+#' - A **named list** of `sigverse` signature data.frames (each validated via
+#'   [sigshared::assert_signature_collection()]), or
+#' - A **numeric matrix** (rows = mutation contexts, columns = signatures) with non-NULL, unique column names.
+#'
+#' Before computing any metric, each column is normalized to sum to 1 (via
+#' `sigshared::compute_fraction()`), ensuring minor rounding errors in provided fractions do not affect results.
+#'
+#' @param signatures A signature collection, either as a named list of `sigverse` signature data.frames
+#'   or as a numeric matrix of fractional values (contexts × signatures). Column names are used as signature IDs.
+#' @param metric Character; one of `c("cosine_similarity", "L2", "L1")`.
+#'   Determines which pairwise metric to compute.
+#' @param format Character; one of `c("data.frame", "matrix")`.
+#'   - `"data.frame"` (default): returns a long-format data.frame with columns `S1`, `S2`, and `<metric>`.
+#'   - `"matrix"`: returns an N×N symmetric numeric matrix of pairwise metrics (dimnames = signature IDs).
+#'     The diagonal is set to 1 for cosine similarity, and 0 for the distance metrics.
+#'
+#' @return Depending on `format`:
+#' \describe{
+#'   \item{`data.frame`}{A data.frame with one row per unique signature pair, and columns
+#'     `S1`, `S2`, and the chosen metric (named after `metric`).}
+#'   \item{`matrix`}{A symmetric numeric matrix of pairwise metrics, with row and column names
+#'     corresponding to signature IDs.}
+#' }
+#'
+#' @examples
+#' library(sigstash)
+#' signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+#'
+#' # Long-format cosine similarities
+#' sig_collection_pairwise_stats(signatures,
+#'                               metric = "cosine_similarity",
+#'                               format = "data.frame")
+#'
+#' # Symmetric matrix of Euclidean distances
+#' sig_collection_pairwise_stats(signatures,
+#'                               metric = "L2",
+#'                               format = "matrix")
+#'
+#' @seealso [sig_cosine_similarity()], [sig_l2_distance()], [sig_lp_distance()], [sig_collection_stats()]
+#' @export
+sig_collection_pairwise_stats <- function(signatures,
+                                          metric = c("cosine_similarity", "L2", "L1"),
+                                          format = c("data.frame", "matrix")
+                                          ){
+
+  metric <- rlang::arg_match(metric)
+  format <- rlang::arg_match(format)
+
+  # Assert signature class and convert to matrix form, if not already
+  if(is.list(signatures)){
+    sigshared::assert_signature_collection(signatures)
+    signatures <- sigshared::sig_collection_reformat_list_to_matrix(signatures, values = "fraction")
+  }
+  # If not a list, assert its a valid signature matrix (rows=channels cols=samples)
+  else{
+    sigshared::assert_signature_collection_matrix(signatures, must_sum_to_one = FALSE)
+  }
+
+  # Normalise any counts to fractions. If already fractions that sum to one,
+  # this will make no difference.
+  signatures <- apply(X = signatures, MARGIN = 2, sigshared::compute_fraction, simplify = TRUE)
+
+  # Create pairwise combinations
+  samples = colnames(signatures)
+  ls_combinations = combn(x = samples, m = 2, simplify = FALSE)
+
+  metric_function <-
+    if(metric == "cosine_similarity")
+      compute_cosine_similarity
+  else if(metric == "L2")
+      function(x, y) { compute_lp_distance(x, y, p = 2) }
+  else if(metric == "L1")
+    function(x, y) { compute_lp_distance(x, y, p = 1) }
+  else {
+    stop("Distance metric: ", metric, " has not yet been implemented. Please create issue on the sigstats github page to request this distance metric.")
+  }
+
+  # Compute pairwise metrics
+  vec_metrics <- vapply(
+    X = ls_combinations,
+    function(combos){
+      sample1 = combos[1]
+      sample2 = combos[2]
+      vec1 = signatures[, sample1, drop=TRUE]
+      vec2 = signatures[, sample2, drop=TRUE]
+
+      # Compute Metric
+      metric_function(vec1, vec2)
+    },
+    FUN.VALUE = numeric(1)
+  )
+
+  # Create data.frame of sample combinations
+  df_combinations <- as.data.frame(do.call("rbind", ls_combinations))
+  colnames(df_combinations) <- c("S1", "S2")
+
+  # Output matrix
+  if(format == "matrix"){
+    m <- matrix(NA_real_, length(samples), length(samples),
+                dimnames = list(samples, samples))
+    m[df_combinations$S1, df_combinations$S2] <- vec_metrics
+    m[df_combinations$S2, df_combinations$S1] <- vec_metrics
+    diag(m) <- if (metric == "cosine_similarity") 1 else 0
+    return(m)
+  }
+
+  # Output data.frame
+  df_combinations[[metric]] <- vec_metrics
+
+  return(df_combinations)
+}
+
 
 # Underlying Computations -------------------------------------------------
 compute_shannon_index <- function(probabilities, exponentiate = FALSE){
@@ -505,7 +628,11 @@ compute_norm <- function(vec, p){
   (sum(abs(vec)^p))^(1/p)
 }
 
-
+# Scale: (boolean) scale to the length of vec1 & vec2
+compute_lp_distance <- function(vec1, vec2, p){
+  vec <- vec1 - vec2
+  compute_norm(vec, p = p)
+}
 
 
 

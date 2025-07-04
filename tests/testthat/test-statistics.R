@@ -187,6 +187,54 @@ test_that("sig_collection_stats l0_norm matches expected non-zero count", {
 })
 
 
+# Compute Pairwise Metrics ------------------------------------------------
+test_that("sig_collection_pairwise_stats returns correct format and values", {
+  col <- sigshared::example_signature_collection()
+
+  # Cosine similarity - data.frame output
+  df <- sig_collection_pairwise_stats(col, metric = "cosine_similarity", format = "data.frame")
+  expect_s3_class(df, "data.frame")
+  expect_named(df, c("S1", "S2", "cosine_similarity"), ignore.order = TRUE)
+  expect_true(all(df$cosine_similarity >= 0 & df$cosine_similarity <= 1))
+
+  # Cosine similarity - matrix output
+  m <- sig_collection_pairwise_stats(col, metric = "cosine_similarity", format = "matrix")
+  expect_true(is.matrix(m))
+  expect_equal(rownames(m), colnames(m))
+  expect_true(all(diag(m) == 1))
+  expect_true(all(m >= 0 & m <= 1, na.rm = TRUE))
+  expect_equal(m, t(m))  # symmetry
+
+  # L2 distance - data.frame
+  df_l2 <- sig_collection_pairwise_stats(col, metric = "L2", format = "data.frame")
+  expect_s3_class(df_l2, "data.frame")
+  expect_named(df_l2, c("S1", "S2", "L2"))
+  expect_true(all(df_l2$L2 >= 0))
+
+  # L2 distance - matrix
+  m_l2 <- sig_collection_pairwise_stats(col, metric = "L2", format = "matrix")
+  expect_equal(rownames(m_l2), colnames(m_l2))
+  expect_true(all(diag(m_l2) == 0))
+  expect_equal(m_l2, t(m_l2))
+
+  # L1 distance
+  df_l1 <- sig_collection_pairwise_stats(col, metric = "L1", format = "data.frame")
+  expect_named(df_l1, c("S1", "S2", "L1"))
+  expect_true(all(df_l1$L1 >= 0))
+
+  # Error for unsupported metric
+  expect_error(sig_collection_pairwise_stats(col, metric = "unsupported"), "must be one of")
+
+  # Error for bad input type
+  expect_error(sig_collection_pairwise_stats(list(x = 1:10)), "not a valid signature collection")
+
+  # Matrix input also works
+  mx <- sigshared::sig_collection_reformat_list_to_matrix(col, values = "fraction")
+  df_mx <- sig_collection_pairwise_stats(mx, metric = "cosine_similarity", format = "data.frame")
+  expect_s3_class(df_mx, "data.frame")
+})
+
+
 # Computing Experimental P Value ------------------------------------------
 
 test_that("Proportion of bootstraps below threshold is calculated correctly", {
