@@ -28,7 +28,10 @@ If "signature", the function returns the data in the sigverse signature format, 
 A data.frame in the 'combined_signature_model' style containing the selected signatures and their modified fractions based on the model.
 }
 \description{
-This function takes a signature collection and a model as input and adds selected signatures to a combined signature model. The default output is a data.frame in the 'combined_signature_model' style data.frame format from the Sigverse package.
+This function takes a signature collection and a model as input and adds
+selected signatures to a combined signature model.
+The default output is a data.frame in either sigverse signature format or the 'combined_signature_model'
+style depending on \code{format}.
 }
 \examples{
 library(sigstash)
@@ -43,7 +46,6 @@ model <- c(SBS1 = 0.4, SBS2 = 0.6)
 combined_signatures <- sig_combine(signatures, model)
 print(combined_signatures)
 
-# Visualise using sigvis
 
 }
 \seealso{
