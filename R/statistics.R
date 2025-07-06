@@ -583,6 +583,136 @@ sig_collection_pairwise_stats <- function(signatures,
 }
 
 
+#' Quantify model correctness for signature deconvolution
+#'
+#' Computes a suite of evaluation metrics for mutational signature fitting. This function compares an "observed" model (from signature fitting) to the "truth" (the true underlying signature contributions) and reports standard accuracy metrics.
+#'
+#' The function returns a named list with:
+#' \describe{
+#'   \item{fitting_error}{Sum of absolute differences between observed and truth, divided by 2 (range: 0–1).}
+#'   \item{RMSE}{Root mean squared error between observed and truth.}
+#'   \item{n_false_positives}{Number of signatures called present in observed but not present in truth.}
+#'   \item{n_false_negatives}{Number of signatures present in truth but missed in observed.}
+#'   \item{n_true_positives}{Number of signatures correctly called as present.}
+#'   \item{n_true_negatives}{Number of signatures correctly called as absent.}
+#'   \item{total_false_positive_contributions}{Sum of weights assigned to false positive signatures.}
+#'   \item{precision}{Proportion of detected signatures that are truly present (TP / (TP + FP)).}
+#'   \item{recall}{Proportion of true signatures that are detected (TP / (TP + FN)).}
+#'   \item{specificity}{Proportion of truly absent signatures that are not detected (TN / (TN + FP)).}
+#'   \item{mathews_correlation_coeff}{Matthews Correlation Coefficient (MCC), a balanced measure even for imbalanced classes.}
+#'   \item{f1}{F1 score, the harmonic mean of precision and recall.}
+#'   \item{balanced_accuracy}{Average of recall and specificity.}
+#' }
+#'
+#' @param observed Numeric named vector. The fitted model (signature weights). Names must be signature IDs; values are fractional contributions (typically sum to 1). See [sigshared::example_model()].
+#' @param truth Numeric named vector. The true signature contributions; same format as \code{observed}.
+#' @param all_signatures Optional character vector. The complete set of possible signature IDs to be evaluated. If \code{NULL}, inferred as the union of names from \code{observed} and \code{truth}.
+#' @param validate Logical. If \code{TRUE} (default), input vectors are checked for correct formatting, and expanded/reordered as needed. If \code{FALSE}, user must ensure \code{observed} and \code{truth} are already aligned and complete.
+#'
+#' @return Named list of metrics quantifying model correctness (see Details).
+#'
+#' @details
+#' For metric calculation, the observed and truth vectors are **expanded and reordered** (if needed) to include all signatures in \code{all_signatures}. Any signatures not present in \code{observed} or \code{truth} are assumed to have zero contribution.
+#'
+#' Presence/absence for each signature is defined as "present" if weight > 0, and "absent" if weight == 0.
+#'
+#' For each signature, possible outcomes are:
+#' \describe{
+#'   \item{True Positive (TP)}{Observed > 0 and Truth > 0 (signature fitted and truly present).}
+#'   \item{False Positive (FP)}{Observed > 0 and Truth == 0 (signature fitted but not truly present).}
+#'   \item{False Negative (FN)}{Observed == 0 and Truth > 0 (signature missed by fitting but truly present).}
+#'   \item{True Negative (TN)}{Observed == 0 and Truth == 0 (signature correctly called absent).}
+#' }
+#'
+#' Counts of TP, FP, TN, and FN are used for all classification metrics. Division-by-zero results in \code{NA} for undefined metrics.
+#'
+#' Precision, recall, F1, and MCC may not be comparable across datasets with different class balances.
+#'
+#' @seealso [sigshared::example_model()]
+#'
+#' @examples
+#' observed <- c(SBS1 = 0.7, SBS5 = 0.3, SBS18 = 0)
+#' truth <- c(SBS1 = 0.6, SBS5 = 0.4, SBS18 = 0)
+#' sig_model_correctness(observed, truth)
+#'
+#' @export
+sig_model_correctness <- function(observed, truth, all_signatures=NULL, validate = TRUE){
+
+  if(validate){
+
+    # Assertions
+    sigshared::assert_model(observed)
+    sigshared::assert_model(truth)
+
+    # if(!(is.numeric(observed) & is.vector(observed))) stop("Observed model must be a numeric vector, not a ", toString(class(observed)))
+    # if(!(is.numeric(truth) & is.vector(truth))) stop("Truth model must be a numeric vector, not a ", toString(class(truth)))
+    #
+    # if(any(duplicated(sigs_obs))) stop("Observed model contains duplicate signature names")
+    # if(any(duplicated(sigs_truth))) stop("Truth model contains duplicate signature names")
+
+    sigs_obs <- names(observed)
+    sigs_truth <- names(truth)
+
+    # If user has not supplied one, create the set of all signatures by combining
+    # those described in observed and truth models.
+    if(is.null(all_signatures))
+      all_signatures <- union(sigs_truth, sigs_obs)
+
+    # Enrich the true model signames for all signatures (assume zero contributions if missing from vec)
+    if(!all(sigs_truth %in% all_signatures)) stop("True model describes signatures not described by `all_signatures` argument")
+    if(!all(sigs_obs %in% all_signatures)) stop("Observed model describes signatures not present in `all_signatures` argument")
+
+    # Expand and reorder both the observed and truth vectors
+    truth <- truth[match(all_signatures, sigs_truth)]
+    truth[is.na(truth)] <- 0
+
+    observed <- observed[match(all_signatures, sigs_obs)]
+    observed[is.na(observed)] <- 0
+  }
+
+
+  # Confusion matrix
+  FP = sum(observed > 0 & truth == 0)
+  TP = sum(observed > 0 & truth > 0)
+  FN = sum(observed == 0 & truth > 0)
+  TN = sum(observed == 0 & truth == 0)
+
+
+  # Return measures of model quality
+  metrics <- list(
+
+    # Fitting error (sum of absolute differences / 2)
+    fitting_error = compute_fitting_error(observed, truth),
+    RMSE = compute_rmse(observed, truth),
+
+    # Confusion matrix
+    n_false_positives = FP,
+    n_true_positives = TP,
+    n_false_negatives = FN,
+    n_true_negatives = TN,
+
+    # False Positive Contribution
+    # (the sum of % contributions attributed to signatures not in the real model)
+    total_false_positive_contributions = sum(observed[observed > 0 & truth == 0]),
+
+    # Metrics based on conf matrix
+    precision = TP/(TP + FP),
+    recall = TP / (TP + FN),
+    specificity = TN/(TN + FP),
+    mathews_correlation_coeff = compute_mcc(TP=TP, FP=FP, TN=TN, FN=FN)
+  )
+
+  metrics[["f1"]] <- compute_f1_score(metrics[["precision"]], metrics[["recall"]])
+
+  metrics[["balanced_accuracy"]] <- (metrics[["recall"]] + metrics[["specificity"]]) / 2
+
+  return(metrics)
+}
+
+
+
+
+
 # Underlying Computations -------------------------------------------------
 compute_shannon_index <- function(probabilities, exponentiate = FALSE){
 
@@ -641,7 +771,37 @@ compute_cosine_similarity <- function(x, y){
   as.numeric(lsa::cosine(x, y))
 }
 
+compute_f1_score <- function(precision, recall){
+  (2*precision*recall)/(precision + recall)
+}
 
+# Fbeta is like the f1 score but where recall is considered beta times more important as precision
+compute_fbeta_score <- function(precision, recall, beta){
+  ((1 + beta^2) * precision * recall) / ((beta^2 * precision) + recall)
+}
+
+# Fitting error as define by medo, Ng, and Medova in 2024
+# The sum of absolute difference between each signatures weight in observed vs truth model,
+# divided by 2. This division is
+# This is the exact same as computing the l1 distance (taxicab distance) then dividing by 2.
+# We divide by two since the max difference between two vectors that can each only sum to 1 is 2.
+# So dividing by 2 moves range from 0-1.
+# This function does not do any normalisation. So expects fractional inputs
+compute_fitting_error <- function(observed, truth){
+  sum(abs(truth-observed))/2
+}
+
+count_model_false_positives <- function(observed, truth){
+  sum(observed > 0 & truth == 0)
+}
+
+compute_rmse <- function(observed, truth){
+  sqrt(sum((truth - observed)^2)/length(truth))
+}
+
+compute_mcc <- function(TP, FP, TN, FN){
+  (TP * TN - FP * FN) / sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN))
+}
 
 
 # Bootstrap Stats ---------------------------------------------------------
