@@ -106,50 +106,214 @@
 <span></span>
 <span><span class="co"># Inspect result</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">difference</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 6 × 4</span></span>
-<span><span class="co">#&gt;   type  channel fraction  count</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt;  &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 C&gt;A   A[C&gt;A]A  0.0224  -2.15 </span></span>
-<span><span class="co">#&gt; 2 C&gt;A   A[C&gt;A]C  0.0173  -1.66 </span></span>
-<span><span class="co">#&gt; 3 C&gt;A   A[C&gt;A]G  0.0149  -1.43 </span></span>
-<span><span class="co">#&gt; 4 C&gt;A   A[C&gt;A]T  0.0181  -1.74 </span></span>
-<span><span class="co">#&gt; 5 C&gt;G   A[C&gt;G]A  0.0134   1.29 </span></span>
-<span><span class="co">#&gt; 6 C&gt;G   A[C&gt;G]C  0.00912  0.878</span></span>
+<span><span class="co">#&gt;     type channel    fraction      count</span></span>
+<span><span class="co">#&gt; 193  C&gt;A A[C&gt;A]A 0.022382961 -2.1530987</span></span>
+<span><span class="co">#&gt; 194  C&gt;A A[C&gt;A]C 0.017305082 -1.6646390</span></span>
+<span><span class="co">#&gt; 195  C&gt;A A[C&gt;A]G 0.014874591 -1.4308412</span></span>
+<span><span class="co">#&gt; 196  C&gt;A A[C&gt;A]T 0.018086125 -1.7397704</span></span>
+<span><span class="co">#&gt; 197  C&gt;G A[C&gt;G]A 0.013392234  1.2882479</span></span>
+<span><span class="co">#&gt; 198  C&gt;G A[C&gt;G]C 0.009122518  0.8775283</span></span>
 <span></span>
 <span><span class="co"># Sum three catalogues</span></span>
 <span><span class="va">catalogue1</span> <span class="op"><a href="reference/sig_add.html">%+%</a></span> <span class="va">catalogue2</span> <span class="op"><a href="reference/sig_add.html">%+%</a></span> <span class="va">catalogue3</span></span>
-<span><span class="co">#&gt; # A tibble: 96 × 4</span></span>
-<span><span class="co">#&gt;    type  channel fraction count</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 C&gt;A   A[C&gt;A]A  0.0251  7.54 </span></span>
-<span><span class="co">#&gt;  2 C&gt;A   A[C&gt;A]C  0.0196  5.87 </span></span>
-<span><span class="co">#&gt;  3 C&gt;A   A[C&gt;A]G  0.00661 1.98 </span></span>
-<span><span class="co">#&gt;  4 C&gt;A   A[C&gt;A]T  0.0162  4.86 </span></span>
-<span><span class="co">#&gt;  5 C&gt;G   A[C&gt;G]A  0.0123  3.69 </span></span>
-<span><span class="co">#&gt;  6 C&gt;G   A[C&gt;G]C  0.00668 2.00 </span></span>
-<span><span class="co">#&gt;  7 C&gt;G   A[C&gt;G]G  0.00112 0.336</span></span>
-<span><span class="co">#&gt;  8 C&gt;G   A[C&gt;G]T  0.0104  3.12 </span></span>
-<span><span class="co">#&gt;  9 C&gt;T   A[C&gt;T]A  0.0186  5.58 </span></span>
-<span><span class="co">#&gt; 10 C&gt;T   A[C&gt;T]C  0.0114  3.41 </span></span>
-<span><span class="co">#&gt; # ℹ 86 more rows</span></span>
+<span><span class="co">#&gt;     type channel    fraction      count</span></span>
+<span><span class="co">#&gt; 193  C&gt;A A[C&gt;A]A 0.025140845  7.5422534</span></span>
+<span><span class="co">#&gt; 194  C&gt;A A[C&gt;A]C 0.019556620  5.8669861</span></span>
+<span><span class="co">#&gt; 195  C&gt;A A[C&gt;A]G 0.006610550  1.9831650</span></span>
+<span><span class="co">#&gt; 196  C&gt;A A[C&gt;A]T 0.016187902  4.8563707</span></span>
+<span><span class="co">#&gt; 197  C&gt;G A[C&gt;G]A 0.012296054  3.6888161</span></span>
+<span><span class="co">#&gt; 198  C&gt;G A[C&gt;G]C 0.006680065  2.0040195</span></span>
+<span><span class="co">#&gt; 199  C&gt;G A[C&gt;G]G 0.001119236  0.3357709</span></span>
+<span><span class="co">#&gt; 200  C&gt;G A[C&gt;G]T 0.010400639  3.1201918</span></span>
+<span><span class="co">#&gt; 201  C&gt;T A[C&gt;T]A 0.018591614  5.5774841</span></span>
+<span><span class="co">#&gt; 202  C&gt;T A[C&gt;T]C 0.011376016  3.4128049</span></span>
+<span><span class="co">#&gt; 203  C&gt;T A[C&gt;T]G 0.003279210  0.9837630</span></span>
+<span><span class="co">#&gt; 204  C&gt;T A[C&gt;T]T 0.012841364  3.8524091</span></span>
+<span><span class="co">#&gt; 205  T&gt;A A[T&gt;A]A 0.007402060  2.2206179</span></span>
+<span><span class="co">#&gt; 206  T&gt;A A[T&gt;A]C 0.005911249  1.7733748</span></span>
+<span><span class="co">#&gt; 207  T&gt;A A[T&gt;A]G 0.010351356  3.1054067</span></span>
+<span><span class="co">#&gt; 208  T&gt;A A[T&gt;A]T 0.005490303  1.6470908</span></span>
+<span><span class="co">#&gt; 209  T&gt;C A[T&gt;C]A 0.023449410  7.0348230</span></span>
+<span><span class="co">#&gt; 210  T&gt;C A[T&gt;C]C 0.007315471  2.1946412</span></span>
+<span><span class="co">#&gt; 211  T&gt;C A[T&gt;C]G 0.018425765  5.5277296</span></span>
+<span><span class="co">#&gt; 212  T&gt;C A[T&gt;C]T 0.018988012  5.6964035</span></span>
+<span><span class="co">#&gt; 213  T&gt;G A[T&gt;G]A 0.002941629  0.8824886</span></span>
+<span><span class="co">#&gt; 214  T&gt;G A[T&gt;G]C 0.001792487  0.5377460</span></span>
+<span><span class="co">#&gt; 215  T&gt;G A[T&gt;G]G 0.005200386  1.5601158</span></span>
+<span><span class="co">#&gt; 216  T&gt;G A[T&gt;G]T 0.002995597  0.8986790</span></span>
+<span><span class="co">#&gt; 217  C&gt;A C[C&gt;A]A 0.036674366 11.0023099</span></span>
+<span><span class="co">#&gt; 218  C&gt;A C[C&gt;A]C 0.036596975 10.9790925</span></span>
+<span><span class="co">#&gt; 219  C&gt;A C[C&gt;A]G 0.010193282  3.0579845</span></span>
+<span><span class="co">#&gt; 220  C&gt;A C[C&gt;A]T 0.030131351  9.0394053</span></span>
+<span><span class="co">#&gt; 221  C&gt;G C[C&gt;G]A 0.011297774  3.3893323</span></span>
+<span><span class="co">#&gt; 222  C&gt;G C[C&gt;G]C 0.009887456  2.9662367</span></span>
+<span><span class="co">#&gt; 223  C&gt;G C[C&gt;G]G 0.002471278  0.7413834</span></span>
+<span><span class="co">#&gt; 224  C&gt;G C[C&gt;G]T 0.012808497  3.8425491</span></span>
+<span><span class="co">#&gt; 225  C&gt;T C[C&gt;T]A 0.015969598  4.7908794</span></span>
+<span><span class="co">#&gt; 226  C&gt;T C[C&gt;T]C 0.016685828  5.0057485</span></span>
+<span><span class="co">#&gt; 227  C&gt;T C[C&gt;T]G 0.007703069  2.3109208</span></span>
+<span><span class="co">#&gt; 228  C&gt;T C[C&gt;T]T 0.020576421  6.1729262</span></span>
+<span><span class="co">#&gt; 229  T&gt;A C[T&gt;A]A 0.008624313  2.5872938</span></span>
+<span><span class="co">#&gt; 230  T&gt;A C[T&gt;A]C 0.011761654  3.5284962</span></span>
+<span><span class="co">#&gt; 231  T&gt;A C[T&gt;A]G 0.016900186  5.0700558</span></span>
+<span><span class="co">#&gt; 232  T&gt;A C[T&gt;A]T 0.009659740  2.8979221</span></span>
+<span><span class="co">#&gt; 233  T&gt;C C[T&gt;C]A 0.009095737  2.7287211</span></span>
+<span><span class="co">#&gt; 234  T&gt;C C[T&gt;C]C 0.009107742  2.7323227</span></span>
+<span><span class="co">#&gt; 235  T&gt;C C[T&gt;C]G 0.012121890  3.6365670</span></span>
+<span><span class="co">#&gt; 236  T&gt;C C[T&gt;C]T 0.011150273  3.3450820</span></span>
+<span><span class="co">#&gt; 237  T&gt;G C[T&gt;G]A 0.002608360  0.7825080</span></span>
+<span><span class="co">#&gt; 238  T&gt;G C[T&gt;G]C 0.004039645  1.2118936</span></span>
+<span><span class="co">#&gt; 239  T&gt;G C[T&gt;G]G 0.006869552  2.0608655</span></span>
+<span><span class="co">#&gt; 240  T&gt;G C[T&gt;G]T 0.005206204  1.5618613</span></span>
+<span><span class="co">#&gt; 241  C&gt;A G[C&gt;A]A 0.016338672  4.9016016</span></span>
+<span><span class="co">#&gt; 242  C&gt;A G[C&gt;A]C 0.017571383  5.2714149</span></span>
+<span><span class="co">#&gt; 243  C&gt;A G[C&gt;A]G 0.006419293  1.9257880</span></span>
+<span><span class="co">#&gt; 244  C&gt;A G[C&gt;A]T 0.012631887  3.7895661</span></span>
+<span><span class="co">#&gt; 245  C&gt;G G[C&gt;G]A 0.007569400  2.2708199</span></span>
+<span><span class="co">#&gt; 246  C&gt;G G[C&gt;G]C 0.006407871  1.9223614</span></span>
+<span><span class="co">#&gt; 247  C&gt;G G[C&gt;G]G 0.002433293  0.7299880</span></span>
+<span><span class="co">#&gt; 248  C&gt;G G[C&gt;G]T 0.008124929  2.4374787</span></span>
+<span><span class="co">#&gt; 249  C&gt;T G[C&gt;T]A 0.013313488  3.9940464</span></span>
+<span><span class="co">#&gt; 250  C&gt;T G[C&gt;T]C 0.012987867  3.8963602</span></span>
+<span><span class="co">#&gt; 251  C&gt;T G[C&gt;T]G 0.004474679  1.3424036</span></span>
+<span><span class="co">#&gt; 252  C&gt;T G[C&gt;T]T 0.011193117  3.3579350</span></span>
+<span><span class="co">#&gt; 253  T&gt;A G[T&gt;A]A 0.006609142  1.9827425</span></span>
+<span><span class="co">#&gt; 254  T&gt;A G[T&gt;A]C 0.004644861  1.3934582</span></span>
+<span><span class="co">#&gt; 255  T&gt;A G[T&gt;A]G 0.009645684  2.8937051</span></span>
+<span><span class="co">#&gt; 256  T&gt;A G[T&gt;A]T 0.007112597  2.1337790</span></span>
+<span><span class="co">#&gt; 257  T&gt;C G[T&gt;C]A 0.008933222  2.6799666</span></span>
+<span><span class="co">#&gt; 258  T&gt;C G[T&gt;C]C 0.004898068  1.4694205</span></span>
+<span><span class="co">#&gt; 259  T&gt;C G[T&gt;C]G 0.009459062  2.8377186</span></span>
+<span><span class="co">#&gt; 260  T&gt;C G[T&gt;C]T 0.008329559  2.4988678</span></span>
+<span><span class="co">#&gt; 261  T&gt;G G[T&gt;G]A 0.002496523  0.7489569</span></span>
+<span><span class="co">#&gt; 262  T&gt;G G[T&gt;G]C 0.001428218  0.4284653</span></span>
+<span><span class="co">#&gt; 263  T&gt;G G[T&gt;G]G 0.006235766  1.8707298</span></span>
+<span><span class="co">#&gt; 264  T&gt;G G[T&gt;G]T 0.002849820  0.8549461</span></span>
+<span><span class="co">#&gt; 265  C&gt;A T[C&gt;A]A 0.018798045  5.6394135</span></span>
+<span><span class="co">#&gt; 266  C&gt;A T[C&gt;A]C 0.024386104  7.3158311</span></span>
+<span><span class="co">#&gt; 267  C&gt;A T[C&gt;A]G 0.004973720  1.4921161</span></span>
+<span><span class="co">#&gt; 268  C&gt;A T[C&gt;A]T 0.021536377  6.4609132</span></span>
+<span><span class="co">#&gt; 269  C&gt;G T[C&gt;G]A 0.008274661  2.4823983</span></span>
+<span><span class="co">#&gt; 270  C&gt;G T[C&gt;G]C 0.011325426  3.3976278</span></span>
+<span><span class="co">#&gt; 271  C&gt;G T[C&gt;G]G 0.001381567  0.4144701</span></span>
+<span><span class="co">#&gt; 272  C&gt;G T[C&gt;G]T 0.013254230  3.9762690</span></span>
+<span><span class="co">#&gt; 273  C&gt;T T[C&gt;T]A 0.009982055  2.9946166</span></span>
+<span><span class="co">#&gt; 274  C&gt;T T[C&gt;T]C 0.014477519  4.3432556</span></span>
+<span><span class="co">#&gt; 275  C&gt;T T[C&gt;T]G 0.005838103  1.7514308</span></span>
+<span><span class="co">#&gt; 276  C&gt;T T[C&gt;T]T 0.012243639  3.6730918</span></span>
+<span><span class="co">#&gt; 277  T&gt;A T[T&gt;A]A 0.007142323  2.1426968</span></span>
+<span><span class="co">#&gt; 278  T&gt;A T[T&gt;A]C 0.006436888  1.9310663</span></span>
+<span><span class="co">#&gt; 279  T&gt;A T[T&gt;A]G 0.007066453  2.1199359</span></span>
+<span><span class="co">#&gt; 280  T&gt;A T[T&gt;A]T 0.009156982  2.7470946</span></span>
+<span><span class="co">#&gt; 281  T&gt;C T[T&gt;C]A 0.011716363  3.5149088</span></span>
+<span><span class="co">#&gt; 282  T&gt;C T[T&gt;C]C 0.006519940  1.9559820</span></span>
+<span><span class="co">#&gt; 283  T&gt;C T[T&gt;C]G 0.007173081  2.1519242</span></span>
+<span><span class="co">#&gt; 284  T&gt;C T[T&gt;C]T 0.011048486  3.3145458</span></span>
+<span><span class="co">#&gt; 285  T&gt;G T[T&gt;G]A 0.004227468  1.2682404</span></span>
+<span><span class="co">#&gt; 286  T&gt;G T[T&gt;G]C 0.004418606  1.3255818</span></span>
+<span><span class="co">#&gt; 287  T&gt;G T[T&gt;G]G 0.005811939  1.7435818</span></span>
+<span><span class="co">#&gt; 288  T&gt;G T[T&gt;G]T 0.008216595  2.4649784</span></span>
 <span></span>
 <span><span class="co"># Sum a catalogue collection</span></span>
 <span><span class="va">catalogues</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cat1 <span class="op">=</span> <span class="va">catalogue1</span>, cat2 <span class="op">=</span> <span class="va">catalogue2</span>, cat3 <span class="op">=</span> <span class="va">catalogue3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/sig_sum.html">sig_sum</a></span><span class="op">(</span><span class="va">catalogues</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 96 × 4</span></span>
-<span><span class="co">#&gt;    type  channel fraction count</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 C&gt;A   A[C&gt;A]A  0.0251  7.54 </span></span>
-<span><span class="co">#&gt;  2 C&gt;A   A[C&gt;A]C  0.0196  5.87 </span></span>
-<span><span class="co">#&gt;  3 C&gt;A   A[C&gt;A]G  0.00661 1.98 </span></span>
-<span><span class="co">#&gt;  4 C&gt;A   A[C&gt;A]T  0.0162  4.86 </span></span>
-<span><span class="co">#&gt;  5 C&gt;G   A[C&gt;G]A  0.0123  3.69 </span></span>
-<span><span class="co">#&gt;  6 C&gt;G   A[C&gt;G]C  0.00668 2.00 </span></span>
-<span><span class="co">#&gt;  7 C&gt;G   A[C&gt;G]G  0.00112 0.336</span></span>
-<span><span class="co">#&gt;  8 C&gt;G   A[C&gt;G]T  0.0104  3.12 </span></span>
-<span><span class="co">#&gt;  9 C&gt;T   A[C&gt;T]A  0.0186  5.58 </span></span>
-<span><span class="co">#&gt; 10 C&gt;T   A[C&gt;T]C  0.0114  3.41 </span></span>
-<span><span class="co">#&gt; # ℹ 86 more rows</span></span></code></pre></div>
+<span><span class="co">#&gt;     type channel    fraction      count</span></span>
+<span><span class="co">#&gt; 193  C&gt;A A[C&gt;A]A 0.025140845  7.5422534</span></span>
+<span><span class="co">#&gt; 194  C&gt;A A[C&gt;A]C 0.019556620  5.8669861</span></span>
+<span><span class="co">#&gt; 195  C&gt;A A[C&gt;A]G 0.006610550  1.9831650</span></span>
+<span><span class="co">#&gt; 196  C&gt;A A[C&gt;A]T 0.016187902  4.8563707</span></span>
+<span><span class="co">#&gt; 197  C&gt;G A[C&gt;G]A 0.012296054  3.6888161</span></span>
+<span><span class="co">#&gt; 198  C&gt;G A[C&gt;G]C 0.006680065  2.0040195</span></span>
+<span><span class="co">#&gt; 199  C&gt;G A[C&gt;G]G 0.001119236  0.3357709</span></span>
+<span><span class="co">#&gt; 200  C&gt;G A[C&gt;G]T 0.010400639  3.1201918</span></span>
+<span><span class="co">#&gt; 201  C&gt;T A[C&gt;T]A 0.018591614  5.5774841</span></span>
+<span><span class="co">#&gt; 202  C&gt;T A[C&gt;T]C 0.011376016  3.4128049</span></span>
+<span><span class="co">#&gt; 203  C&gt;T A[C&gt;T]G 0.003279210  0.9837630</span></span>
+<span><span class="co">#&gt; 204  C&gt;T A[C&gt;T]T 0.012841364  3.8524091</span></span>
+<span><span class="co">#&gt; 205  T&gt;A A[T&gt;A]A 0.007402060  2.2206179</span></span>
+<span><span class="co">#&gt; 206  T&gt;A A[T&gt;A]C 0.005911249  1.7733748</span></span>
+<span><span class="co">#&gt; 207  T&gt;A A[T&gt;A]G 0.010351356  3.1054067</span></span>
+<span><span class="co">#&gt; 208  T&gt;A A[T&gt;A]T 0.005490303  1.6470908</span></span>
+<span><span class="co">#&gt; 209  T&gt;C A[T&gt;C]A 0.023449410  7.0348230</span></span>
+<span><span class="co">#&gt; 210  T&gt;C A[T&gt;C]C 0.007315471  2.1946412</span></span>
+<span><span class="co">#&gt; 211  T&gt;C A[T&gt;C]G 0.018425765  5.5277296</span></span>
+<span><span class="co">#&gt; 212  T&gt;C A[T&gt;C]T 0.018988012  5.6964035</span></span>
+<span><span class="co">#&gt; 213  T&gt;G A[T&gt;G]A 0.002941629  0.8824886</span></span>
+<span><span class="co">#&gt; 214  T&gt;G A[T&gt;G]C 0.001792487  0.5377460</span></span>
+<span><span class="co">#&gt; 215  T&gt;G A[T&gt;G]G 0.005200386  1.5601158</span></span>
+<span><span class="co">#&gt; 216  T&gt;G A[T&gt;G]T 0.002995597  0.8986790</span></span>
+<span><span class="co">#&gt; 217  C&gt;A C[C&gt;A]A 0.036674366 11.0023099</span></span>
+<span><span class="co">#&gt; 218  C&gt;A C[C&gt;A]C 0.036596975 10.9790925</span></span>
+<span><span class="co">#&gt; 219  C&gt;A C[C&gt;A]G 0.010193282  3.0579845</span></span>
+<span><span class="co">#&gt; 220  C&gt;A C[C&gt;A]T 0.030131351  9.0394053</span></span>
+<span><span class="co">#&gt; 221  C&gt;G C[C&gt;G]A 0.011297774  3.3893323</span></span>
+<span><span class="co">#&gt; 222  C&gt;G C[C&gt;G]C 0.009887456  2.9662367</span></span>
+<span><span class="co">#&gt; 223  C&gt;G C[C&gt;G]G 0.002471278  0.7413834</span></span>
+<span><span class="co">#&gt; 224  C&gt;G C[C&gt;G]T 0.012808497  3.8425491</span></span>
+<span><span class="co">#&gt; 225  C&gt;T C[C&gt;T]A 0.015969598  4.7908794</span></span>
+<span><span class="co">#&gt; 226  C&gt;T C[C&gt;T]C 0.016685828  5.0057485</span></span>
+<span><span class="co">#&gt; 227  C&gt;T C[C&gt;T]G 0.007703069  2.3109208</span></span>
+<span><span class="co">#&gt; 228  C&gt;T C[C&gt;T]T 0.020576421  6.1729262</span></span>
+<span><span class="co">#&gt; 229  T&gt;A C[T&gt;A]A 0.008624313  2.5872938</span></span>
+<span><span class="co">#&gt; 230  T&gt;A C[T&gt;A]C 0.011761654  3.5284962</span></span>
+<span><span class="co">#&gt; 231  T&gt;A C[T&gt;A]G 0.016900186  5.0700558</span></span>
+<span><span class="co">#&gt; 232  T&gt;A C[T&gt;A]T 0.009659740  2.8979221</span></span>
+<span><span class="co">#&gt; 233  T&gt;C C[T&gt;C]A 0.009095737  2.7287211</span></span>
+<span><span class="co">#&gt; 234  T&gt;C C[T&gt;C]C 0.009107742  2.7323227</span></span>
+<span><span class="co">#&gt; 235  T&gt;C C[T&gt;C]G 0.012121890  3.6365670</span></span>
+<span><span class="co">#&gt; 236  T&gt;C C[T&gt;C]T 0.011150273  3.3450820</span></span>
+<span><span class="co">#&gt; 237  T&gt;G C[T&gt;G]A 0.002608360  0.7825080</span></span>
+<span><span class="co">#&gt; 238  T&gt;G C[T&gt;G]C 0.004039645  1.2118936</span></span>
+<span><span class="co">#&gt; 239  T&gt;G C[T&gt;G]G 0.006869552  2.0608655</span></span>
+<span><span class="co">#&gt; 240  T&gt;G C[T&gt;G]T 0.005206204  1.5618613</span></span>
+<span><span class="co">#&gt; 241  C&gt;A G[C&gt;A]A 0.016338672  4.9016016</span></span>
+<span><span class="co">#&gt; 242  C&gt;A G[C&gt;A]C 0.017571383  5.2714149</span></span>
+<span><span class="co">#&gt; 243  C&gt;A G[C&gt;A]G 0.006419293  1.9257880</span></span>
+<span><span class="co">#&gt; 244  C&gt;A G[C&gt;A]T 0.012631887  3.7895661</span></span>
+<span><span class="co">#&gt; 245  C&gt;G G[C&gt;G]A 0.007569400  2.2708199</span></span>
+<span><span class="co">#&gt; 246  C&gt;G G[C&gt;G]C 0.006407871  1.9223614</span></span>
+<span><span class="co">#&gt; 247  C&gt;G G[C&gt;G]G 0.002433293  0.7299880</span></span>
+<span><span class="co">#&gt; 248  C&gt;G G[C&gt;G]T 0.008124929  2.4374787</span></span>
+<span><span class="co">#&gt; 249  C&gt;T G[C&gt;T]A 0.013313488  3.9940464</span></span>
+<span><span class="co">#&gt; 250  C&gt;T G[C&gt;T]C 0.012987867  3.8963602</span></span>
+<span><span class="co">#&gt; 251  C&gt;T G[C&gt;T]G 0.004474679  1.3424036</span></span>
+<span><span class="co">#&gt; 252  C&gt;T G[C&gt;T]T 0.011193117  3.3579350</span></span>
+<span><span class="co">#&gt; 253  T&gt;A G[T&gt;A]A 0.006609142  1.9827425</span></span>
+<span><span class="co">#&gt; 254  T&gt;A G[T&gt;A]C 0.004644861  1.3934582</span></span>
+<span><span class="co">#&gt; 255  T&gt;A G[T&gt;A]G 0.009645684  2.8937051</span></span>
+<span><span class="co">#&gt; 256  T&gt;A G[T&gt;A]T 0.007112597  2.1337790</span></span>
+<span><span class="co">#&gt; 257  T&gt;C G[T&gt;C]A 0.008933222  2.6799666</span></span>
+<span><span class="co">#&gt; 258  T&gt;C G[T&gt;C]C 0.004898068  1.4694205</span></span>
+<span><span class="co">#&gt; 259  T&gt;C G[T&gt;C]G 0.009459062  2.8377186</span></span>
+<span><span class="co">#&gt; 260  T&gt;C G[T&gt;C]T 0.008329559  2.4988678</span></span>
+<span><span class="co">#&gt; 261  T&gt;G G[T&gt;G]A 0.002496523  0.7489569</span></span>
+<span><span class="co">#&gt; 262  T&gt;G G[T&gt;G]C 0.001428218  0.4284653</span></span>
+<span><span class="co">#&gt; 263  T&gt;G G[T&gt;G]G 0.006235766  1.8707298</span></span>
+<span><span class="co">#&gt; 264  T&gt;G G[T&gt;G]T 0.002849820  0.8549461</span></span>
+<span><span class="co">#&gt; 265  C&gt;A T[C&gt;A]A 0.018798045  5.6394135</span></span>
+<span><span class="co">#&gt; 266  C&gt;A T[C&gt;A]C 0.024386104  7.3158311</span></span>
+<span><span class="co">#&gt; 267  C&gt;A T[C&gt;A]G 0.004973720  1.4921161</span></span>
+<span><span class="co">#&gt; 268  C&gt;A T[C&gt;A]T 0.021536377  6.4609132</span></span>
+<span><span class="co">#&gt; 269  C&gt;G T[C&gt;G]A 0.008274661  2.4823983</span></span>
+<span><span class="co">#&gt; 270  C&gt;G T[C&gt;G]C 0.011325426  3.3976278</span></span>
+<span><span class="co">#&gt; 271  C&gt;G T[C&gt;G]G 0.001381567  0.4144701</span></span>
+<span><span class="co">#&gt; 272  C&gt;G T[C&gt;G]T 0.013254230  3.9762690</span></span>
+<span><span class="co">#&gt; 273  C&gt;T T[C&gt;T]A 0.009982055  2.9946166</span></span>
+<span><span class="co">#&gt; 274  C&gt;T T[C&gt;T]C 0.014477519  4.3432556</span></span>
+<span><span class="co">#&gt; 275  C&gt;T T[C&gt;T]G 0.005838103  1.7514308</span></span>
+<span><span class="co">#&gt; 276  C&gt;T T[C&gt;T]T 0.012243639  3.6730918</span></span>
+<span><span class="co">#&gt; 277  T&gt;A T[T&gt;A]A 0.007142323  2.1426968</span></span>
+<span><span class="co">#&gt; 278  T&gt;A T[T&gt;A]C 0.006436888  1.9310663</span></span>
+<span><span class="co">#&gt; 279  T&gt;A T[T&gt;A]G 0.007066453  2.1199359</span></span>
+<span><span class="co">#&gt; 280  T&gt;A T[T&gt;A]T 0.009156982  2.7470946</span></span>
+<span><span class="co">#&gt; 281  T&gt;C T[T&gt;C]A 0.011716363  3.5149088</span></span>
+<span><span class="co">#&gt; 282  T&gt;C T[T&gt;C]C 0.006519940  1.9559820</span></span>
+<span><span class="co">#&gt; 283  T&gt;C T[T&gt;C]G 0.007173081  2.1519242</span></span>
+<span><span class="co">#&gt; 284  T&gt;C T[T&gt;C]T 0.011048486  3.3145458</span></span>
+<span><span class="co">#&gt; 285  T&gt;G T[T&gt;G]A 0.004227468  1.2682404</span></span>
+<span><span class="co">#&gt; 286  T&gt;G T[T&gt;G]C 0.004418606  1.3255818</span></span>
+<span><span class="co">#&gt; 287  T&gt;G T[T&gt;G]G 0.005811939  1.7435818</span></span>
+<span><span class="co">#&gt; 288  T&gt;G T[T&gt;G]T 0.008216595  2.4649784</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="reconstruct-a-mutation-catalogue-from-a-signature-model">Reconstruct a mutation catalogue from a signature model<a class="anchor" aria-label="anchor" href="#reconstruct-a-mutation-catalogue-from-a-signature-model"></a>
@@ -180,6 +344,134 @@
 <span><span class="co">#&gt; ✔ All types matched perfectly to set [sbs_type]. Using this set for sort order</span></span>
 <span><span class="co">#&gt; ✔ Types matched perfectly to palette [snv_type]</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
+</div>
+<div class="section level3">
+<h3 id="compute-stats-on-signature-collections">Compute Stats on Signature Collections<a class="anchor" aria-label="anchor" href="#compute-stats-on-signature-collections"></a>
+</h3>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Load a signature collection</span></span>
+<span><span class="va">signatures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/sigstash/man/sig_load.html" class="external-link">sig_load</a></span><span class="op">(</span><span class="st">"COSMIC_v3.3.1_SBS_GRCh38"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Compute common statistics:</span></span>
+<span><span class="co"># e.g. Gini coefficient, Exponentiated Shannon Index, KL divergence, L1/L2/L3 Norms)</span></span>
+<span><span class="va">stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sig_collection_stats.html">sig_collection_stats</a></span><span class="op">(</span><span class="va">signatures</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Print Stats</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     id      gini shannon_index shannon_index_exp kl_divergence_from_uniform</span></span>
+<span><span class="co">#&gt; 1 SBS1 0.9480089      1.856082          6.398621                  2.7082657</span></span>
+<span><span class="co">#&gt; 2 SBS2 0.9798792      1.218777          3.383048                  3.3455711</span></span>
+<span><span class="co">#&gt; 3 SBS3 0.3268209      4.385754         80.298771                  0.1785939</span></span>
+<span><span class="co">#&gt; 4 SBS4 0.6456680      3.809528         45.129134                  0.7548202</span></span>
+<span><span class="co">#&gt; 5 SBS5 0.4063016      4.296474         73.440415                  0.2678738</span></span>
+<span><span class="co">#&gt; 6 SBS6 0.8851745      2.718273         15.154126                  1.8460754</span></span>
+<span><span class="co">#&gt;      l3_norm   l2_norm l1_norm l0_norm max_channel_fraction</span></span>
+<span><span class="co">#&gt; 1 0.41142780 0.4844887       1      96           0.37062390</span></span>
+<span><span class="co">#&gt; 2 0.56614330 0.6231289       1      96           0.53513019</span></span>
+<span><span class="co">#&gt; 3 0.06042455 0.1174484       1      96           0.02499156</span></span>
+<span><span class="co">#&gt; 4 0.12333330 0.1852696       1      96           0.08026888</span></span>
+<span><span class="co">#&gt; 5 0.07475926 0.1306525       1      96           0.04597922</span></span>
+<span><span class="co">#&gt; 6 0.23115412 0.3114406       1      96           0.17879063</span></span>
+<span><span class="co">#&gt;   shannon_index_exp_scaled l3_norm_scaled l2_norm_scaled l1_norm_scaled</span></span>
+<span><span class="co">#&gt; 1               0.06665230   0.0042857062    0.005046757     0.01041667</span></span>
+<span><span class="co">#&gt; 2               0.03524008   0.0058973261    0.006490926     0.01041667</span></span>
+<span><span class="co">#&gt; 3               0.83644553   0.0006294224    0.001223421     0.01041667</span></span>
+<span><span class="co">#&gt; 4               0.47009514   0.0012847218    0.001929892     0.01041667</span></span>
+<span><span class="co">#&gt; 5               0.76500432   0.0007787423    0.001360964     0.01041667</span></span>
+<span><span class="co">#&gt; 6               0.15785548   0.0024078554    0.003244173     0.01041667</span></span>
+<span><span class="co">#&gt;   l0_norm_scaled</span></span>
+<span><span class="co">#&gt; 1              1</span></span>
+<span><span class="co">#&gt; 2              1</span></span>
+<span><span class="co">#&gt; 3              1</span></span>
+<span><span class="co">#&gt; 4              1</span></span>
+<span><span class="co">#&gt; 5              1</span></span>
+<span><span class="co">#&gt; 6              1</span></span>
+<span></span>
+<span><span class="co"># Plot kl_divergence_from_uniform against exponentiated shannon index</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="va">stats</span><span class="op">[[</span><span class="st">"kl_divergence_from_uniform"</span><span class="op">]</span><span class="op">]</span>, </span>
+<span>  y <span class="op">=</span> <span class="va">stats</span><span class="op">[[</span><span class="st">"shannon_index_exp_scaled"</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="100%"> ### Compute Similarity/Distance Measures</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">signatures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/sigstash/man/sig_load.html" class="external-link">sig_load</a></span><span class="op">(</span><span class="st">"COSMIC_v3.3.1_SBS_GRCh38"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Pairwise cosine similarity</span></span>
+<span><span class="va">sim_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sig_collection_pairwise_stats.html">sig_collection_pairwise_stats</a></span><span class="op">(</span></span>
+<span>  <span class="va">signatures</span>,</span>
+<span>  metric <span class="op">=</span> <span class="st">"cosine_similarity"</span>,</span>
+<span>  format <span class="op">=</span> <span class="st">"data.frame"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_df</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     S1    S2 cosine_similarity</span></span>
+<span><span class="co">#&gt; 1 SBS1  SBS2        0.02031489</span></span>
+<span><span class="co">#&gt; 2 SBS1  SBS3        0.05372626</span></span>
+<span><span class="co">#&gt; 3 SBS1  SBS4        0.02361321</span></span>
+<span><span class="co">#&gt; 4 SBS1  SBS5        0.19426687</span></span>
+<span><span class="co">#&gt; 5 SBS1  SBS6        0.77021158</span></span>
+<span><span class="co">#&gt; 6 SBS1 SBS7a        0.04804510</span></span>
+<span></span>
+<span><span class="co"># L2 (Euclidean) distance matrix</span></span>
+<span><span class="va">dist_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sig_collection_pairwise_stats.html">sig_collection_pairwise_stats</a></span><span class="op">(</span></span>
+<span>  <span class="va">signatures</span>,</span>
+<span>  metric <span class="op">=</span> <span class="st">"L2"</span>,</span>
+<span>  format <span class="op">=</span> <span class="st">"matrix"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="model-correctness">Model Correctness<a class="anchor" aria-label="anchor" href="#model-correctness"></a>
+</h3>
+<p>Quantify how well a fitted model matches ground truth signature weights.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">signatures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/sigstash/man/sig_load.html" class="external-link">sig_load</a></span><span class="op">(</span><span class="st">"COSMIC_v3.3.1_SBS_GRCh38"</span><span class="op">)</span></span>
+<span><span class="va">cosmic_signatures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">signatures</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">observed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>SBS1 <span class="op">=</span> <span class="fl">0.7</span>, SBS5 <span class="op">=</span> <span class="fl">0.3</span>, SBS18 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">truth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>SBS1 <span class="op">=</span> <span class="fl">0.6</span>, SBS5 <span class="op">=</span> <span class="fl">0.4</span>, SBS18 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">metrics</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sig_model_correctness.html">sig_model_correctness</a></span><span class="op">(</span><span class="va">observed</span>, <span class="va">truth</span>, all_signatures <span class="op">=</span> <span class="va">cosmic_signatures</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">metrics</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $fitting_error</span></span>
+<span><span class="co">#&gt; [1] 0.1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $RMSE</span></span>
+<span><span class="co">#&gt; [1] 0.01591115</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $n_false_positives</span></span>
+<span><span class="co">#&gt; [1] 0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $n_true_positives</span></span>
+<span><span class="co">#&gt; [1] 2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $n_false_negatives</span></span>
+<span><span class="co">#&gt; [1] 0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $n_true_negatives</span></span>
+<span><span class="co">#&gt; [1] 77</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $total_false_positive_contributions</span></span>
+<span><span class="co">#&gt; [1] 0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $precision</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $recall</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $specificity</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $mathews_correlation_coeff</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $f1</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $balanced_accuracy</span></span>
+<span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
 </div>
 </div>
 </div>
