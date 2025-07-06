@@ -116,7 +116,7 @@ sig_visualise(
 ```
 
 
-### Computing Stats on Signature Collections
+### Compute Stats on Signature Collections
 
 ```{r}
 
@@ -135,5 +135,43 @@ plot(
   x = stats[["kl_divergence_from_uniform"]], 
   y = stats[["shannon_index_exp_scaled"]]
 )
+```
+### Compute Similarity/Distance Measures
+
+```{r}
+signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+
+# Pairwise cosine similarity
+sim_df <- sig_collection_pairwise_stats(
+  signatures,
+  metric = "cosine_similarity",
+  format = "data.frame"
+)
+head(sim_df)
+
+# L2 (Euclidean) distance matrix
+dist_mat <- sig_collection_pairwise_stats(
+  signatures,
+  metric = "L2",
+  format = "matrix"
+)
+```
+
+
+### Model Correctness
+
+Quantify how well a fitted model matches ground truth signature weights.
+
+```{r}
+
+signatures <- sig_load("COSMIC_v3.3.1_SBS_GRCh38")
+cosmic_signatures <- names(signatures)
+
+observed <- c(SBS1 = 0.7, SBS5 = 0.3, SBS18 = 0)
+truth <- c(SBS1 = 0.6, SBS5 = 0.4, SBS18 = 0)
+
+metrics <- sig_model_correctness(observed, truth, all_signatures = cosmic_signatures)
+
+print(metrics)
 ```
 

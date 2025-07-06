@@ -362,3 +362,158 @@ test_that("sig_summarise_bootstraps returns correct quantiles and IQR", {
 
   expect_equal(result$p_value, c(0, 0, 0.5))
 })
+
+
+# Model Correctness statistics --------------------------------------------
+
+test_that("sig_model_correctness returns all expected metrics and correct types", {
+  observed <- c(S1 = 0.5, S2 = 0.3, S3 = 0.2)
+  truth <- c(S1 = 0.6, S2 = 0.4, S3 = 0.0)
+  metrics <- sig_model_correctness(observed, truth)
+
+  # Expect a named list with all metrics
+  expect_type(metrics, "list")
+  expect_true(all(c(
+    "fitting_error", "RMSE", "n_false_positives", "n_true_positives",
+    "n_false_negatives", "n_true_negatives", "total_false_positive_contributions",
+    "precision", "recall", "specificity", "mathews_correlation_coeff",
+    "f1", "balanced_accuracy"
+  ) %in% names(metrics)))
+
+  # All numeric except possibly MCC (can be NaN/NA)
+  for (nm in setdiff(names(metrics), character(0))) {
+    expect_true(is.numeric(metrics[[nm]]) || is.na(metrics[[nm]]))
+  }
+})
+
+test_that("sig_model_correctness matches expected values for simple case", {
+  observed <- c(A = 0.5, B = 0.5, C = 0)
+  truth <- c(A = 1, B = 0, C = 0)
+  m <- sig_model_correctness(observed, truth)
+  expect_equal(m$fitting_error, 0.5)
+  expect_equal(m$n_false_positives, 1)
+  expect_equal(m$n_false_negatives, 0)
+  expect_equal(m$n_true_positives, 1)
+  expect_equal(m$n_true_negatives, 1)
+  expect_equal(m$total_false_positive_contributions, 0.5)
+  expect_equal(m$precision, 0.5)
+  expect_equal(m$recall, 1)
+  expect_equal(m$specificity, 1 / 2)
+  expect_equal(m$mathews_correlation_coeff, 0.5)
+})
+
+test_that("sig_model_correctness handles perfect fit", {
+  observed <- c(S1 = 0.6, S2 = 0.4, S3 = 0)
+  truth <- c(S1 = 0.6, S2 = 0.4, S3 = 0)
+  m <- sig_model_correctness(observed, truth)
+  expect_equal(m$fitting_error, 0)
+  expect_equal(m$RMSE, 0)
+  expect_equal(m$n_false_positives, 0)
+  expect_equal(m$n_false_negatives, 0)
+  expect_equal(m$n_true_positives, 2)
+  expect_equal(m$n_true_negatives, 1)
+  expect_equal(m$total_false_positive_contributions, 0)
+  expect_equal(m$precision, 1)
+  expect_equal(m$recall, 1)
+  expect_equal(m$specificity, 1)
+  expect_equal(m$f1, 1)
+})
+
+test_that("sig_model_correctness handles all-zero model", {
+  observed <- c(S1 = 0, S2 = 0, S3 = 0)
+  truth <- c(S1 = 0.6, S2 = 0.4, S3 = 0)
+  m <- sig_model_correctness(observed, truth)
+  expect_equal(m$n_false_positives, 0)
+  expect_equal(m$n_true_positives, 0)
+  expect_equal(m$n_false_negatives, 2)
+  expect_equal(m$n_true_negatives, 1)
+  expect_true(is.nan(m$precision) || is.na(m$precision)) # TP=0, FP=0
+  expect_equal(m$recall, 0)
+  expect_equal(m$specificity, 1)
+})
+
+test_that("sig_model_correctness detects all false positives", {
+  observed <- c(S1 = 0.1, S2 = 0.2, S3 = 0.7)
+  truth <- c(S1 = 0, S2 = 0, S3 = 0)
+  m <- sig_model_correctness(observed, truth)
+  expect_equal(m$n_false_positives, 3)
+  expect_equal(m$n_true_positives, 0)
+  expect_equal(m$n_false_negatives, 0)
+  expect_equal(m$n_true_negatives, 0)
+  expect_equal(m$total_false_positive_contributions, 1)
+  expect_equal(m$recall, NaN) # 0/0
+  expect_equal(m$precision, 0)
+  expect_equal(m$specificity, 0)
+})
+
+test_that("sig_model_correctness handles mixed ordering and missing names", {
+  observed <- c(S3 = 0, S2 = 0.4, S1 = 0.6)
+  truth <- c(S1 = 0.6, S2 = 0.4, S3 = 0)
+  m1 <- sig_model_correctness(observed, truth)
+  m2 <- sig_model_correctness(truth, observed)
+  # Should be symmetric
+  expect_equal(m1$fitting_error, m2$fitting_error)
+  expect_equal(m1$n_true_positives, m2$n_true_positives)
+})
+
+
+test_that("sig_model_correctness works for unnamed vectors with validate=FALSE", {
+  observed <- c(0.6, 0.4, 0)
+  truth <- c(0.6, 0.4, 0)
+  expect_silent(sig_model_correctness(observed, truth, validate = FALSE))
+})
+
+test_that("sig_model_correctness can handle one-hot signature (perfect/peaked)", {
+  observed <- c(S1 = 1, S2 = 0, S3 = 0)
+  truth <- c(S1 = 1, S2 = 0, S3 = 0)
+  m <- sig_model_correctness(observed, truth)
+  expect_equal(m$fitting_error, 0)
+  expect_equal(m$n_true_positives, 1)
+  expect_equal(m$n_false_positives, 0)
+  expect_equal(m$n_false_negatives, 0)
+  expect_equal(m$n_true_negatives, 2)
+  expect_equal(m$precision, 1)
+  expect_equal(m$recall, 1)
+})
+
+test_that("sig_model_correctness returns NA/NaN for undefined metrics", {
+  # All predictions and truth are zero
+  observed <- c(S1 = 0, S2 = 0)
+  truth <- c(S1 = 0, S2 = 0)
+  m <- sig_model_correctness(observed, truth)
+  expect_true(is.nan(m$precision) || is.na(m$precision))
+  expect_true(is.nan(m$recall) || is.na(m$recall))
+  expect_true(is.nan(m$f1) || is.na(m$f1))
+  expect_equal(m$specificity, 1)
+})
+
+test_that("sig_model_correctness is robust to floating point near-zero", {
+  observed <- c(S1 = 1e-16, S2 = 1 - 1e-16)
+  truth <- c(S1 = 0, S2 = 1)
+  m <- sig_model_correctness(observed, truth)
+  # Should treat S1 as present (since >0)
+  expect_equal(m$n_false_positives, 1)
+  expect_equal(m$n_true_positives, 1)
+})
+
+test_that("sig_model_correctness handles high-dimensional input", {
+  n <- 100
+  observed <- rep(0, n); names(observed) <- paste0("S", seq_len(n))
+  truth <- observed; truth[1:5] <- 1 / 5
+  m <- sig_model_correctness(observed, truth)
+  expect_equal(m$n_false_negatives, 5)
+  expect_equal(m$n_true_negatives, n - 5)
+})
+
+test_that("sig_model_correctness matches example in documentation", {
+  observed <- c(SBS1 = 0.7, SBS5 = 0.3, SBS18 = 0)
+  truth <- c(SBS1 = 0.6, SBS5 = 0.4, SBS18 = 0)
+  m <- sig_model_correctness(observed, truth)
+  expect_type(m, "list")
+  expect_equal(m$n_true_positives, 2)
+  expect_equal(m$n_true_negatives, 1)
+  expect_equal(m$n_false_positives, 0)
+  expect_equal(m$n_false_negatives, 0)
+})
+
+
